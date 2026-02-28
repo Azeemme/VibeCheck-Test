@@ -1,6 +1,6 @@
-# VibeCheck MCP Server (Cursor)
+# VibeCheck MCP Server
 
-This folder provides a Cursor-compatible MCP server for the VibeCheck API.
+This folder provides an MCP server for the VibeCheck API.
 
 ## Why this shape
 - Transport: `stdio` (most reliable in Cursor)
@@ -13,31 +13,74 @@ This folder provides a Cursor-compatible MCP server for the VibeCheck API.
    - `mcp`
    - `httpx`
 
-Install:
+Install (local):
 
 ```bash
-cd /Users/rajendrathalluru/Documents/Hackathon/VibeCheck
-python3 -m pip install mcp httpx
+cd /Users/rajendrathalluru/Documents/vibeccheck/VibeCheck
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
+python -m pip install mcp httpx
 ```
 
 ## Run manually (stdio)
 
 ```bash
-cd /Users/rajendrathalluru/Documents/Hackathon/VibeCheck
-VIBECHECK_API_BASE=http://127.0.0.1:8000 \
-python3 mcp_server/vibecheck_mcp_server.py
+cd /Users/rajendrathalluru/Documents/vibeccheck/VibeCheck
+source .venv/bin/activate
+VIBECHECK_API_BASE=https://vibecheck1-257d3ab2.aedify.ai \
+python mcp_server/vibecheck_mcp_server.py
 ```
 
-## Run manually (streamable-http)
+## Run manually (streamable-http, local-only)
 
 ```bash
-cd /Users/rajendrathalluru/Documents/Hackathon/VibeCheck
-VIBECHECK_API_BASE=http://127.0.0.1:8000 \
-python3 mcp_server/vibecheck_mcp_server.py \
+cd /Users/rajendrathalluru/Documents/vibeccheck/VibeCheck
+source .venv/bin/activate
+VIBECHECK_API_BASE=https://vibecheck1-257d3ab2.aedify.ai \
+python mcp_server/vibecheck_mcp_server.py \
   --transport streamable-http \
   --host 127.0.0.1 \
   --port 8787 \
   --path /mcp
+```
+
+## Run manually (streamable-http, public)
+
+Use this when clients are on a different machine/network:
+
+```bash
+cd /Users/rajendrathalluru/Documents/vibeccheck/VibeCheck
+source .venv/bin/activate
+VIBECHECK_API_BASE=https://vibecheck1-257d3ab2.aedify.ai \
+python mcp_server/vibecheck_mcp_server.py \
+  --transport streamable-http \
+  --host 0.0.0.0 \
+  --port 8787 \
+  --path /mcp
+```
+
+Then expose this service behind HTTPS and share:
+
+```text
+https://<your-mcp-domain>/mcp
+```
+
+## Deploy MCP as a container
+
+Build:
+
+```bash
+cd /Users/rajendrathalluru/Documents/vibeccheck/VibeCheck
+docker build -f mcp_server/Dockerfile -t vibecheck-mcp .
+```
+
+Run:
+
+```bash
+docker run --rm -p 8787:8787 \
+  -e VIBECHECK_API_BASE=https://vibecheck1-257d3ab2.aedify.ai \
+  vibecheck-mcp
 ```
 
 ## Cursor MCP config
@@ -48,12 +91,12 @@ Add to your Cursor MCP config (`mcp.json`):
 {
   "mcpServers": {
     "vibecheck": {
-      "command": "python3",
+      "command": "/Users/rajendrathalluru/Documents/vibeccheck/VibeCheck/.venv/bin/python",
       "args": [
-        "/Users/rajendrathalluru/Documents/Hackathon/VibeCheck/mcp_server/vibecheck_mcp_server.py"
+        "/Users/rajendrathalluru/Documents/vibeccheck/VibeCheck/mcp_server/vibecheck_mcp_server.py"
       ],
       "env": {
-        "VIBECHECK_API_BASE": "http://127.0.0.1:8000",
+        "VIBECHECK_API_BASE": "https://vibecheck1-257d3ab2.aedify.ai",
         "VIBECHECK_TIMEOUT_SECONDS": "30"
       }
     }
@@ -78,6 +121,25 @@ If you run this MCP server as HTTP, Cursor can connect by URL:
 ```
 
 For a remote deployment, replace with your public endpoint URL.
+
+## Remote client config (streamable-http)
+
+Any MCP client that supports URL-based streamable-http can use:
+
+```json
+{
+  "mcpServers": {
+    "vibecheck-remote": {
+      "url": "https://<your-mcp-domain>/mcp"
+    }
+  }
+}
+```
+
+## Security note
+
+This MCP server currently has no built-in authentication.
+Do not expose it publicly without network controls or auth at your reverse proxy.
 
 ## Exposed tools
 - `health`
