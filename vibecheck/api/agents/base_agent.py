@@ -1,5 +1,5 @@
 import json
-from datetime import datetime, timezone
+from datetime import datetime
 
 from google import genai
 from google.genai import types
@@ -8,6 +8,7 @@ from api.agents.http_tools import check_security_headers, http_request
 from api.config import settings
 from api.models.agent_log import AgentLog
 from api.models.finding import Finding
+from api.services.supermemory_service import SupermemoryService
 from api.utils.id_generator import generate_id
 
 AGENT_TOOLS = [
@@ -141,8 +142,7 @@ class BaseAgent:
                     ),
                 )
             except Exception as e:
-                print(f"[{self.name}] Gemini error: {e}")
-                break
+                raise RuntimeError(f"[{self.name}] Gemini generate_content failed: {e}") from e
 
             candidate = response.candidates[0] if response.candidates else None
             if not candidate or not candidate.content or not candidate.content.parts:
@@ -235,7 +235,7 @@ class BaseAgent:
             response_preview=response_preview,
             reasoning=reasoning,
             finding_id=finding_id,
-            timestamp=datetime.now(timezone.utc),
+            timestamp=datetime.utcnow(),
         )
         self.db.add(log)
         await self.db.flush()
@@ -257,11 +257,26 @@ class BaseAgent:
             evidence=evidence,
             remediation=data.get("remediation", ""),
             agent=self.name,
-            created_at=datetime.now(timezone.utc),
+            created_at=datetime.utcnow(),
         )
         self.db.add(finding)
         await self.db.flush()
         self.findings.append(finding)
+
+        await SupermemoryService.ingest_finding(
+            assessment_id=self.assessment_id,
+            mode="robust",
+            repo_url=None,
+            target_url=self.target_url,
+            finding={
+                "severity": finding.severity,
+                "category": finding.category,
+                "title": finding.title,
+                "description": finding.description,
+                "location": finding.location,
+                "remediation": finding.remediation,
+            },
+        )
 
         await self._log_step(
             action=f"Reported {data.get('severity', 'info')} finding: {data.get('title', '')}",

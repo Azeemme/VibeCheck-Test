@@ -82,6 +82,9 @@ Features
 - **Stateful assessments**:
   - `Assessment` tracks mode, status, errors, finding counts, and links.
   - `Finding` contains severity, category, location, evidence, and remediation text.
+- **Supermemory integration** (optional):
+  - Automatically stores findings as durable memory for cross-run recall.
+  - Search endpoint to retrieve semantically similar past findings.
 - **WebSocket tunnel** for robust mode (already scaffolded and tested).
 - **Great DX**:
   - Self‑documenting OpenAPI at `/docs` and `/redoc`.
@@ -188,6 +191,9 @@ Configuration is managed via `pydantic-settings` in `api/config.py`. The followi
 |-----------------|-------------------------------------------|----------------------------------------------|
 | `DATABASE_URL`  | `sqlite+aiosqlite:///./vibecheck.db`      | SQLAlchemy async database URL                |
 | `GEMINI_API_KEY`| `""`                                      | Gemini API key (optional; for LLM analysis)  |
+| `SUPERMEMORY_API_KEY` | `""`                                | Supermemory API key (optional; memory layer) |
+| `SUPERMEMORY_BASE_URL` | `https://api.supermemory.ai`       | Supermemory API base URL                     |
+| `SUPERMEMORY_TIMEOUT_SECONDS` | `10`                         | Timeout for Supermemory API requests         |
 | `CLONE_DIR`     | `/tmp/vibecheck-repos`                    | Directory to clone GitHub repos into         |
 | `DEBUG`         | `false`                                   | Enables SQLAlchemy engine echo logging       |
 
@@ -196,11 +202,28 @@ For local development, create a `.env` file next to `pyproject.toml`:
 ```env
 DATABASE_URL=sqlite+aiosqlite:///./vibecheck.db
 GEMINI_API_KEY=sk-gemini-...optional...
+SUPERMEMORY_API_KEY=sm_...optional...
+SUPERMEMORY_BASE_URL=https://api.supermemory.ai
+SUPERMEMORY_TIMEOUT_SECONDS=10
 CLONE_DIR=/tmp/vibecheck-repos
 DEBUG=true
 ```
 
 The settings are loaded into `api.config.settings`.
+
+### Online Database (Postgres)
+
+To run VibeCheck with a hosted database (Neon/Supabase/RDS/Fly Postgres):
+
+1. Provision a Postgres instance and copy its connection string.
+2. Set `DATABASE_URL` using SQLAlchemy async driver:
+
+```env
+DATABASE_URL=postgresql+asyncpg://USER:PASSWORD@HOST:5432/DBNAME?sslmode=require
+```
+
+3. Install dependencies (includes `asyncpg`) and restart the API.
+4. On startup, VibeCheck runs `Base.metadata.create_all`, so tables are created automatically if they do not exist.
 
 ### Running the API
 
@@ -294,6 +317,8 @@ Query parameters:
 
 - `GET /v1/assessments/{id}/findings/{finding_id}`  
   Return a single finding (404 if not found or not associated with that assessment).
+- `POST /v1/assessments/{id}/findings/{finding_id}/analyze`  
+  AI-assisted vulnerability analysis with mode-specific guidance and Supermemory context.
 
 ### Agent Logs
 
@@ -315,6 +340,11 @@ For **lightweight** mode, this endpoint returns a `400` error with code `LOGS_NO
   - During robust assessments the API sends `http_request` messages and expects `http_response` replies.
 - `GET /v1/tunnel/sessions` – list all `TunnelSession` records.
 - `GET /v1/tunnel/sessions/{id}` – details for a single session (404 if missing).
+
+### Memory
+
+- `GET /v1/memory/status` – whether Supermemory integration is enabled.
+- `GET /v1/memory/search?q=...&limit=5&assessment_id=...` – semantic search over stored findings.
 
 ### Error Format
 
@@ -574,4 +604,3 @@ Potential extensions and follow‑ups:
 - Add **Fly.io** deployment config (`fly.toml` + Dockerfile) and publish a public instance.
 
 For detailed product requirements and design decisions, see `PRD.md` at the repo root.
-

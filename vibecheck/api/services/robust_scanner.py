@@ -1,10 +1,11 @@
 import traceback
-from datetime import datetime, timezone
+from datetime import datetime
 
 from sqlalchemy import func, select
 
 from api.agents import AGENT_MAP
 from api.agents.http_tools import http_request
+from api.config import settings
 from api.models.assessment import Assessment
 from api.models.finding import Finding
 
@@ -26,18 +27,30 @@ async def run_robust_scan(
             return
 
         try:
+            if not settings.GEMINI_API_KEY:
+                assessment.status = "failed"
+                assessment.error_type = "GEMINI_API_KEY_MISSING"
+                assessment.error_message = (
+                    "GEMINI_API_KEY is not configured. Robust mode requires Gemini credentials."
+                )
+                await db.commit()
+                return
+
             assessment.status = "scanning"
             await db.commit()
 
             health_check = await http_request(target_url, "GET", "/")
-            if "error" in health_check and health_check["error"] == "connection_failed":
+            if "error" in health_check:
                 assessment.status = "failed"
                 assessment.error_type = "TARGET_UNREACHABLE"
                 assessment.error_message = (
-                    f"Cannot reach {target_url}: {health_check.get('message', 'connection failed')}"
+                    f"Cannot reach {target_url}: {health_check.get('message', health_check.get('error', 'request failed'))}"
                 )[:500]
                 await db.commit()
                 return
+
+            succeeded_agents = 0
+            failed_agents: list[str] = []
 
             for agent_name in agent_names:
                 agent_class = AGENT_MAP.get(agent_name)
@@ -52,12 +65,24 @@ async def run_robust_scan(
                         db_session=db,
                     )
                     await agent.run()
+                    succeeded_agents += 1
                     await db.commit()
                 except Exception as e:
                     print(f"[robust_scanner] Agent '{agent_name}' failed: {e}")
                     traceback.print_exc()
+                    failed_agents.append(f"{agent_name}: {str(e)[:180]}")
                     await db.rollback()
                     continue
+
+            if succeeded_agents == 0:
+                assessment.status = "failed"
+                assessment.error_type = "AGENT_EXECUTION_FAILED"
+                details = "; ".join(failed_agents) if failed_agents else "no agents ran"
+                assessment.error_message = (
+                    f"All robust agents failed. Check GEMINI_MODEL/GEMINI_API_KEY and logs. Details: {details}"
+                )[:500]
+                await db.commit()
+                return
 
             count_query = (
                 select(Finding.severity, func.count(Finding.id))
@@ -78,7 +103,7 @@ async def run_robust_scan(
 
             assessment.finding_counts = finding_counts
             assessment.status = "complete"
-            assessment.completed_at = datetime.now(timezone.utc)
+            assessment.completed_at = datetime.utcnow()
             await db.commit()
 
         except Exception as e:

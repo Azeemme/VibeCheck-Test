@@ -1,5 +1,5 @@
 import asyncio
-from datetime import datetime, timezone
+from datetime import datetime
 
 from fastapi import WebSocket
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -80,7 +80,7 @@ class TunnelManager:
         elif data.get("type") == "pong":
             session = await db.get(TunnelSession, session_id)
             if session:
-                session.last_heartbeat = datetime.now(timezone.utc)
+                session.last_heartbeat = datetime.utcnow()
                 await db.commit()
 
 

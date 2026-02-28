@@ -1,4 +1,7 @@
+import asyncio
+
 from fastapi import APIRouter, BackgroundTasks, Depends
+from fastapi import WebSocket, WebSocketDisconnect
 from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -122,6 +125,74 @@ async def get_assessment(
     if not assessment:
         raise VibeCheckError.not_found("Assessment", assessment_id)
     return AssessmentResponse.model_validate(assessment)
+
+
+@router.websocket("/v1/assessments/{assessment_id}/ws")
+async def assessment_status_websocket(
+    ws: WebSocket,
+    assessment_id: str,
+):
+    """
+    Streams assessment status updates until completion/failure.
+    Intended for UI live updates without manual refresh.
+    """
+    from api.database import async_sessionmaker_factory
+
+    await ws.accept()
+    last_payload: dict | None = None
+
+    try:
+        while True:
+            async with async_sessionmaker_factory() as db:
+                assessment = await db.get(Assessment, assessment_id)
+
+            if not assessment:
+                await ws.send_json(
+                    {
+                        "type": "error",
+                        "error": {
+                            "code": "ASSESSMENT_NOT_FOUND",
+                            "message": f"Assessment '{assessment_id}' not found.",
+                        },
+                    }
+                )
+                await ws.close(code=1008)
+                return
+
+            payload = {
+                "id": assessment.id,
+                "mode": assessment.mode,
+                "status": assessment.status,
+                "finding_counts": assessment.finding_counts,
+                "error_type": assessment.error_type,
+                "error_message": assessment.error_message,
+                "updated_at": assessment.updated_at.isoformat() if assessment.updated_at else None,
+                "completed_at": assessment.completed_at.isoformat() if assessment.completed_at else None,
+            }
+
+            if payload != last_payload:
+                await ws.send_json(
+                    {
+                        "type": "assessment_update",
+                        "data": payload,
+                    }
+                )
+                last_payload = payload
+
+            if assessment.status in ("complete", "failed"):
+                await ws.send_json(
+                    {
+                        "type": "assessment_terminal",
+                        "data": payload,
+                    }
+                )
+                await ws.close(code=1000)
+                return
+
+            await asyncio.sleep(2)
+
+    except WebSocketDisconnect:
+        return
 
 
 @router.delete("/v1/assessments/{assessment_id}", status_code=204)

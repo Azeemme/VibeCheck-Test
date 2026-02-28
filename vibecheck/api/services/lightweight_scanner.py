@@ -3,7 +3,7 @@ import os
 import shutil
 import subprocess
 import time
-from datetime import datetime, timezone
+from datetime import datetime
 
 from api.config import settings
 from api.models.assessment import Assessment
@@ -15,6 +15,7 @@ from api.services.scanners import (
     pattern_scanner,
     secret_scanner,
 )
+from api.services.supermemory_service import SupermemoryService
 from api.utils.errors import VibeCheckError
 
 LOG_PATH = r"c:\Users\Azeem\Workshop\API Project\debug-3e1901.log"
@@ -144,9 +145,24 @@ async def run_lightweight_scan(
                 finding_counts[f["severity"]] += 1
                 finding_counts["total"] += 1
 
+                await SupermemoryService.ingest_finding(
+                    assessment_id=assessment_id,
+                    mode="lightweight",
+                    repo_url=repo_url,
+                    target_url=None,
+                    finding={
+                        "severity": f["severity"],
+                        "category": f["category"],
+                        "title": f["title"],
+                        "description": f["description"],
+                        "location": f.get("location"),
+                        "remediation": f["remediation"],
+                    },
+                )
+
             assessment.finding_counts = finding_counts
             assessment.status = "complete"
-            assessment.completed_at = datetime.now(timezone.utc)
+            assessment.completed_at = datetime.utcnow()
             await db.commit()
 
         except VibeCheckError as e:

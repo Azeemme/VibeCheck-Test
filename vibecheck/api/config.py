@@ -16,6 +16,9 @@ class Settings(BaseSettings):
     DATABASE_URL: str = "sqlite+aiosqlite:///./vibecheck.db"
     GEMINI_API_KEY: str = ""
     GEMINI_MODEL: str = "gemini-2.5-flash"
+    SUPERMEMORY_API_KEY: str = ""
+    SUPERMEMORY_BASE_URL: str = "https://api.supermemory.ai"
+    SUPERMEMORY_TIMEOUT_SECONDS: float = 10.0
     CLONE_DIR: str = "/tmp/vibecheck-repos"
     DEBUG: bool = False
 

@@ -6,7 +6,7 @@ from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
 
 from api.database import create_tables
-from api.routers import health, assessments, findings, logs, agents, tunnel
+from api.routers import health, assessments, findings, logs, agents, tunnel, memory
 from api.utils.errors import VibeCheckError
 
 app = FastAPI(
@@ -66,6 +66,7 @@ app.include_router(findings.router)
 app.include_router(logs.router)
 app.include_router(agents.router)
 app.include_router(tunnel.router)
+app.include_router(memory.router)
 
 
 @app.on_event("startup")
