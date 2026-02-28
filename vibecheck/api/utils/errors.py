@@ -75,7 +75,7 @@ class VibeCheckError(Exception):
             "conflict",
             "Assessment is still in progress. Wait for completion before re-running.",
             "ASSESSMENT_IN_PROGRESS",
-            400,
+            409,
         )
 
     @classmethod

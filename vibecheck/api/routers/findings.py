@@ -48,6 +48,7 @@ async def list_findings(
     severity: str | None = None,
     category: str | None = None,
     agent: str | None = None,
+    q: str | None = None,
     sort: str = "severity",
 ):
     await _get_assessment_or_404(db, assessment_id)
@@ -59,6 +60,11 @@ async def list_findings(
         query = query.where(Finding.category == category)
     if agent is not None:
         query = query.where(Finding.agent == agent)
+    if q is not None:
+        pattern = f"%{q}%"
+        query = query.where(
+            (Finding.title.ilike(pattern)) | (Finding.description.ilike(pattern))
+        )
 
     if sort == "severity":
         query = query.order_by(SEVERITY_ORDER.asc(), Finding.created_at.asc())
