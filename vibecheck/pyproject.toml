@@ -1,3 +1,7 @@
+[build-system]
+requires = ["setuptools>=64", "wheel"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "vibecheck"
 version = "1.0.0"
@@ -10,6 +14,9 @@ dependencies = [
     "pydantic",
     "pydantic-settings",
     "httpx",
-    "openai",
+    "google-genai",
     "python-dotenv",
 ]
+
+[tool.setuptools]
+packages = ["api"]

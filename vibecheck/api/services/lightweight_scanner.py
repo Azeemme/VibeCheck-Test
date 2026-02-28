@@ -2,6 +2,7 @@ import json
 import os
 import shutil
 import subprocess
+import time
 from datetime import datetime, timezone
 
 from api.config import settings
@@ -15,6 +16,27 @@ from api.services.scanners import (
     secret_scanner,
 )
 from api.utils.errors import VibeCheckError
+
+LOG_PATH = r"c:\Users\Azeem\Workshop\API Project\debug-3e1901.log"
+
+
+def _agent_log(hypothesis_id: str, location: str, message: str, data: dict):
+    try:
+        entry = {
+            "sessionId": "3e1901",
+            "id": f"log_{int(time.time() * 1000)}",
+            "timestamp": int(time.time() * 1000),
+            "location": location,
+            "message": message,
+            "data": data,
+            "runId": "initial",
+            "hypothesisId": hypothesis_id,
+        }
+        with open(LOG_PATH, "a", encoding="utf-8") as f:
+            f.write(json.dumps(entry) + "\n")
+    except Exception:
+        # Logging must never break the app
+        pass
 
 
 async def run_lightweight_scan(
@@ -51,15 +73,56 @@ async def run_lightweight_scan(
 
             project_info = detect_project_info(project_files)
 
-            all_findings.extend(dependency_scanner.scan(project_files, project_info))
-            all_findings.extend(pattern_scanner.scan(project_files))
-            all_findings.extend(secret_scanner.scan(project_files))
-            all_findings.extend(config_scanner.scan(project_files, project_info))
+            # Dependency scanner findings
+            for f in dependency_scanner.scan(project_files, project_info):
+                f.setdefault("agent", "dependency_scanner")
+                all_findings.append(f)
 
-            # Optional LLM-based contextual analysis (OpenAI)
-            if settings.OPENAI_API_KEY:
-                claude_findings = await claude_scanner.scan(project_files, project_info)
-                all_findings.extend(claude_findings)
+            # Pattern scanner findings
+            for f in pattern_scanner.scan(project_files):
+                f.setdefault("agent", "pattern_scanner")
+                all_findings.append(f)
+
+            # Secret scanner findings
+            for f in secret_scanner.scan(project_files):
+                f.setdefault("agent", "secret_scanner")
+                all_findings.append(f)
+
+            # Config scanner findings
+            for f in config_scanner.scan(project_files, project_info):
+                f.setdefault("agent", "config_scanner")
+                all_findings.append(f)
+
+            # Optional LLM-based contextual analysis (Gemini)
+            # #region agent log
+            _agent_log(
+                "A",
+                "lightweight_scanner.py:run_lightweight_scan",
+                "Checking whether to run Gemini scan",
+                {
+                    "has_gemini_key": bool(settings.GEMINI_API_KEY),
+                    "files_count": len(project_files),
+                },
+            )
+            # #endregion
+
+            if settings.GEMINI_API_KEY:
+                claude_findings = await claude_scanner.scan(
+                    project_files, project_info
+                )
+
+                # #region agent log
+                _agent_log(
+                    "B",
+                    "lightweight_scanner.py:run_lightweight_scan",
+                    "Gemini scan completed",
+                    {"llm_findings_count": len(claude_findings)},
+                )
+                # #endregion
+
+                for f in claude_findings:
+                    f.setdefault("agent", "gemini_llm")
+                    all_findings.append(f)
 
             finding_counts = {
                 "critical": 0, "high": 0, "medium": 0,
@@ -75,7 +138,7 @@ async def run_lightweight_scan(
                     location=f.get("location"),
                     evidence=f.get("evidence"),
                     remediation=f["remediation"],
-                    agent="static",
+                    agent=f.get("agent", "static_analyzer"),
                 )
                 db.add(finding)
                 finding_counts[f["severity"]] += 1
