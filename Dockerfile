@@ -20,6 +20,11 @@ COPY frontend /app/frontend
 RUN python -m pip install --upgrade pip \
     && python -m pip install .
 
+RUN useradd --create-home --shell /bin/bash appuser \
+    && chown -R appuser:appuser /app /tmp/vibecheck-repos
+
+USER appuser
+
 EXPOSE 8000
 
 CMD ["python", "-m", "uvicorn", "api.main:app", "--host", "0.0.0.0", "--port", "8000"]

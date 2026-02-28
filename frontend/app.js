@@ -103,9 +103,21 @@ function formatDate(ts) {
   return new Date(ts).toLocaleString();
 }
 
+function escapeHtml(str) {
+  if (str == null) return "";
+  const s = String(str);
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 function badge(value, prefix) {
-  const cls = (value || "unknown").toLowerCase();
-  return `<span class="badge ${prefix}-${cls}">${value || "-"}</span>`;
+  const raw = value || "-";
+  const cls = (value || "unknown").toLowerCase().replace(/[^a-z0-9-_]/g, "");
+  return `<span class="badge ${prefix}-${cls}">${escapeHtml(raw)}</span>`;
 }
 
 function renderStats() {
@@ -139,12 +151,12 @@ function renderAssessments() {
     .map((a) => {
       const isSelected = state.selectedAssessmentId === a.id ? " style=\"background: rgba(14, 95, 155, 0.1);\"" : "";
       return `
-        <tr class="clickable" data-assessment-id="${a.id}"${isSelected}>
-          <td>${a.id}</td>
-          <td>${a.mode}</td>
+        <tr class="clickable" data-assessment-id="${escapeHtml(a.id)}"${isSelected}>
+          <td>${escapeHtml(a.id)}</td>
+          <td>${escapeHtml(a.mode)}</td>
           <td>${badge(a.status, "badge")}</td>
-          <td>${formatDate(a.created_at)}</td>
-          <td>${a.finding_counts?.total ?? 0}</td>
+          <td>${escapeHtml(formatDate(a.created_at))}</td>
+          <td>${escapeHtml(String(a.finding_counts?.total ?? 0))}</td>
         </tr>
       `;
     })
@@ -167,12 +179,12 @@ function populateFilterOptions() {
 
   els.categoryFilter.innerHTML = `<option value="">All Categories</option>${[...categories]
     .sort()
-    .map((c) => `<option value="${c}">${c}</option>`)
+    .map((c) => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`)
     .join("")}`;
 
   els.agentFilter.innerHTML = `<option value="">All Agents</option>${[...agents]
     .sort()
-    .map((a) => `<option value="${a}">${a}</option>`)
+    .map((a) => `<option value="${escapeHtml(a)}">${escapeHtml(a)}</option>`)
     .join("")}`;
 }
 
@@ -444,13 +456,13 @@ function renderFindings() {
     els.findingsTable.innerHTML = pageItems
       .map(
         (f) => `
-          <tr class="clickable" data-finding-id="${f.id}">
+          <tr class="clickable" data-finding-id="${escapeHtml(f.id)}">
             <td>${badge(f.severity, "badge")}</td>
-            <td>${f.category || "-"}</td>
-            <td>${f.title || "-"}</td>
-            <td>${f.agent || "-"}</td>
-            <td>${findingLocationText(f.location)}</td>
-            <td>${formatDate(f.created_at)}</td>
+            <td>${escapeHtml(f.category || "-")}</td>
+            <td>${escapeHtml(f.title || "-")}</td>
+            <td>${escapeHtml(f.agent || "-")}</td>
+            <td>${escapeHtml(findingLocationText(f.location))}</td>
+            <td>${escapeHtml(formatDate(f.created_at))}</td>
           </tr>
         `,
       )
@@ -508,7 +520,7 @@ async function loadTunnelSessions() {
       `<option value="">Select active tunnel session (optional)</option>`,
       ...sessions
         .filter((s) => s.status === "connected")
-        .map((s) => `<option value="${s.id}">${s.id} (port ${s.target_port})</option>`),
+        .map((s) => `<option value="${escapeHtml(s.id)}">${escapeHtml(s.id)} (port ${escapeHtml(String(s.target_port))})</option>`),
     ].join("");
   } catch (e) {
     els.createStatus.textContent = `Could not load tunnel sessions: ${e.message}`;

@@ -16,6 +16,11 @@ COPY mcp_server/vibecheck_mcp_server.py /app/vibecheck_mcp_server.py
 RUN python -m pip install --upgrade pip \
     && python -m pip install mcp httpx
 
+RUN useradd --create-home --shell /bin/bash appuser \
+    && chown -R appuser:appuser /app
+
+USER appuser
+
 EXPOSE 8787
 
 CMD ["python", "/app/vibecheck_mcp_server.py"]
