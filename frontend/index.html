@@ -145,7 +145,16 @@
         </div>
 
         <div class="filters">
-          <input id="searchInput" type="text" placeholder="Search title or description" />
+          <input id="searchInput" type="text" placeholder="Search findings…" />
+          <select id="searchFieldFilter" title="Search in">
+            <option value="title_description">Title & description</option>
+            <option value="title">Title only</option>
+            <option value="description">Description only</option>
+            <option value="category">Category</option>
+            <option value="agent">Agent</option>
+            <option value="location">Location</option>
+            <option value="remediation">Remediation</option>
+          </select>
           <select id="severityFilter">
             <option value="">All Severities</option>
             <option value="critical">Critical</option>

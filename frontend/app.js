@@ -53,6 +53,7 @@ const els = {
   agentFilter: document.getElementById("agentFilter"),
   sortBy: document.getElementById("sortBy"),
   searchInput: document.getElementById("searchInput"),
+  searchFieldFilter: document.getElementById("searchFieldFilter"),
   prevPage: document.getElementById("prevPage"),
   nextPage: document.getElementById("nextPage"),
   pageInfo: document.getElementById("pageInfo"),
@@ -196,6 +197,26 @@ function findingLocationText(location) {
   return JSON.stringify(location);
 }
 
+function getSearchHaystack(f) {
+  const field = (els.searchFieldFilter && els.searchFieldFilter.value) || "title_description";
+  switch (field) {
+    case "title":
+      return (f.title || "").toLowerCase();
+    case "description":
+      return (f.description || "").toLowerCase();
+    case "category":
+      return (f.category || "").toLowerCase();
+    case "agent":
+      return (f.agent || "").toLowerCase();
+    case "location":
+      return findingLocationText(f.location).toLowerCase();
+    case "remediation":
+      return (f.remediation || "").toLowerCase();
+    default:
+      return `${f.title || ""} ${f.description || ""}`.toLowerCase();
+  }
+}
+
 function getFilteredFindings() {
   const search = els.searchInput.value.trim().toLowerCase();
   const severity = els.severityFilter.value;
@@ -207,7 +228,7 @@ function getFilteredFindings() {
     if (category && f.category !== category) return false;
     if (agent && f.agent !== agent) return false;
     if (search) {
-      const haystack = `${f.title || ""} ${f.description || ""}`.toLowerCase();
+      const haystack = getSearchHaystack(f);
       if (!haystack.includes(search)) return false;
     }
     return true;
@@ -891,7 +912,7 @@ function setupEvents() {
     }
   });
 
-  [els.searchInput, els.severityFilter, els.categoryFilter, els.agentFilter, els.sortBy].forEach((el) => {
+  [els.searchInput, els.searchFieldFilter, els.severityFilter, els.categoryFilter, els.agentFilter, els.sortBy].forEach((el) => {
     el.addEventListener("input", () => {
       state.currentPage = 1;
       renderFindings();
