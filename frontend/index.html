@@ -1,229 +1,236 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>VibeCheck Security Dashboard</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
-    <link rel="stylesheet" href="./styles.css" />
-  </head>
-  <body>
-    <div class="bg-blur bg-blur-1"></div>
-    <div class="bg-blur bg-blur-2"></div>
 
-    <header class="topbar">
-      <div>
-        <p class="eyebrow">Security Orchestration</p>
-        <h1>VibeCheck Control Center</h1>
-      </div>
-      <div class="api-box">
-        <label for="apiBase">API Base URL</label>
-        <input id="apiBase" type="text" value="http://localhost:8000" />
-      </div>
-    </header>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VibeCheck Security Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="./styles.css" />
+</head>
 
-    <main class="layout">
-      <section class="panel panel-create">
-        <h2>Create Assessment</h2>
-        <p class="muted">Choose lightweight or robust mode and submit.</p>
+<body>
+  <div class="bg-blur bg-blur-1"></div>
+  <div class="bg-blur bg-blur-2"></div>
 
-        <form id="createForm">
-          <label for="scanMode">Scan Mode</label>
-          <select id="scanMode">
-            <option value="lightweight">Lightweight</option>
-            <option value="robust">Robust</option>
-          </select>
+  <header class="topbar">
+    <div>
+      <p class="eyebrow">Security Orchestration</p>
+      <h1>VibeCheck Control Center</h1>
+    </div>
+    <div style="margin-left:auto;">
+      <a href="docs.html"
+        style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:10px;background:linear-gradient(95deg,#0e5f9b 0%,#0f8f7a 100%);color:#fff;text-decoration:none;font-size:13px;font-weight:600;transition:transform 120ms ease;">📄
+        API Docs</a>
+    </div>
+    <div class="api-box">
+      <label for="apiBase">API Base URL</label>
+      <input id="apiBase" type="text" value="http://localhost:8000" />
+    </div>
+  </header>
 
-          <div id="lightweightFields">
+  <main class="layout">
+    <section class="panel panel-create">
+      <h2>Create Assessment</h2>
+      <p class="muted">Choose lightweight or robust mode and submit.</p>
+
+      <form id="createForm">
+        <label for="scanMode">Scan Mode</label>
+        <select id="scanMode">
+          <option value="lightweight">Lightweight</option>
+          <option value="robust">Robust</option>
+        </select>
+
+        <div id="lightweightFields">
           <label for="repoUrl">Repository URL</label>
           <input id="repoUrl" type="url" placeholder="https://github.com/org/repo" required />
-          </div>
-
-          <div id="robustFields" class="hidden">
-            <label for="targetUrl">Target URL</label>
-            <input id="targetUrl" type="url" placeholder="http://localhost:3000" />
-
-            <label for="tunnelSessionId">Tunnel Session (optional)</label>
-            <div class="inline-row">
-              <input id="tunnelSessionId" type="text" placeholder="tun_xxxxx (optional)" />
-              <button type="button" id="loadTunnels" class="secondary">Load Sessions</button>
-            </div>
-            <select id="tunnelSessionSelect">
-              <option value="">Select active tunnel session (optional)</option>
-            </select>
-
-            <label for="depth">Depth</label>
-            <select id="depth">
-              <option value="quick">Quick</option>
-              <option value="standard" selected>Standard</option>
-              <option value="deep">Deep</option>
-            </select>
-
-            <label>Agents</label>
-            <div class="checks">
-              <label><input type="checkbox" class="agent-check" value="recon" checked /> recon</label>
-              <label><input type="checkbox" class="agent-check" value="auth" checked /> auth</label>
-              <label><input type="checkbox" class="agent-check" value="injection" checked /> injection</label>
-              <label><input type="checkbox" class="agent-check" value="config" checked /> config</label>
-            </div>
-          </div>
-
-          <label for="idempotencyKey">Idempotency Key (optional)</label>
-          <input id="idempotencyKey" type="text" placeholder="scan-2026-02-28-001" />
-
-          <button type="submit" id="createBtn">Start Assessment</button>
-        </form>
-
-        <p id="createStatus" class="status-line"></p>
-      </section>
-
-      <section class="panel panel-stats">
-        <h2>Assessment Snapshot</h2>
-        <div class="stat-grid">
-          <article class="stat-card">
-            <span>Total Assessments</span>
-            <strong id="statTotal">0</strong>
-          </article>
-          <article class="stat-card">
-            <span>Queued / Running</span>
-            <strong id="statActive">0</strong>
-          </article>
-          <article class="stat-card">
-            <span>Completed</span>
-            <strong id="statComplete">0</strong>
-          </article>
-          <article class="stat-card">
-            <span>Failed</span>
-            <strong id="statFailed">0</strong>
-          </article>
         </div>
-      </section>
 
-      <section class="panel panel-assessments">
-        <div class="section-header">
-          <h2>Assessments</h2>
-          <div class="row-actions">
-            <button id="refreshAssessments" class="secondary">Refresh</button>
-            <button id="autoPollToggle" class="secondary">Auto Poll: Off</button>
+        <div id="robustFields" class="hidden">
+          <label for="targetUrl">Target URL</label>
+          <input id="targetUrl" type="url" placeholder="http://localhost:3000" />
+
+          <label for="tunnelSessionId">Tunnel Session (optional)</label>
+          <div class="inline-row">
+            <input id="tunnelSessionId" type="text" placeholder="tun_xxxxx (optional)" />
+            <button type="button" id="loadTunnels" class="secondary">Load Sessions</button>
+          </div>
+          <select id="tunnelSessionSelect">
+            <option value="">Select active tunnel session (optional)</option>
+          </select>
+
+          <label for="depth">Depth</label>
+          <select id="depth">
+            <option value="quick">Quick</option>
+            <option value="standard" selected>Standard</option>
+            <option value="deep">Deep</option>
+          </select>
+
+          <label>Agents</label>
+          <div class="checks">
+            <label><input type="checkbox" class="agent-check" value="recon" checked /> recon</label>
+            <label><input type="checkbox" class="agent-check" value="auth" checked /> auth</label>
+            <label><input type="checkbox" class="agent-check" value="injection" checked /> injection</label>
+            <label><input type="checkbox" class="agent-check" value="config" checked /> config</label>
           </div>
         </div>
 
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Mode</th>
-                <th>Status</th>
-                <th>Created</th>
-                <th>Findings</th>
-              </tr>
-            </thead>
-            <tbody id="assessmentsTable"></tbody>
-          </table>
-        </div>
-        <div class="pagination">
-          <button id="asmPrevPage" class="secondary">Previous</button>
-          <span id="asmPageInfo">Page 1</span>
-          <button id="asmNextPage" class="secondary">Next</button>
-        </div>
-      </section>
+        <label for="idempotencyKey">Idempotency Key (optional)</label>
+        <input id="idempotencyKey" type="text" placeholder="scan-2026-02-28-001" />
 
-      <section class="panel panel-findings">
-        <div class="section-header">
-          <h2>Findings Grid</h2>
-          <div class="row-actions">
-            <p id="selectedAssessmentLabel" class="muted">Select an assessment to load findings.</p>
-            <button id="exportCsv" class="secondary">Export CSV</button>
-            <button id="exportJson" class="secondary">Export JSON</button>
-          </div>
-        </div>
+        <button type="submit" id="createBtn">Start Assessment</button>
+      </form>
 
-        <div class="filters">
-          <input id="searchInput" type="text" placeholder="Search findings…" />
-          <select id="searchFieldFilter" title="Search in">
-            <option value="title_description">Title & description</option>
-            <option value="title">Title only</option>
-            <option value="description">Description only</option>
-            <option value="category">Category</option>
-            <option value="agent">Agent</option>
-            <option value="location">Location</option>
-            <option value="remediation">Remediation</option>
-          </select>
-          <select id="severityFilter">
-            <option value="">All Severities</option>
-            <option value="critical">Critical</option>
-            <option value="high">High</option>
-            <option value="medium">Medium</option>
-            <option value="low">Low</option>
-            <option value="info">Info</option>
-          </select>
-          <select id="agentFilter">
-            <option value="">All Agents</option>
-          </select>
-          <select id="categoryFilter">
-            <option value="">All Categories</option>
-          </select>
-          <select id="sortBy">
-            <option value="severity">Sort: Severity</option>
-            <option value="created_at">Sort: Created</option>
-          </select>
-        </div>
+      <p id="createStatus" class="status-line"></p>
+    </section>
 
-        <div class="table-wrap findings-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Severity</th>
-                <th>Category</th>
-                <th>Title</th>
-                <th>Agent</th>
-                <th>Location</th>
-                <th>Created</th>
-              </tr>
-            </thead>
-            <tbody id="findingsTable"></tbody>
-          </table>
-        </div>
+    <section class="panel panel-stats">
+      <h2>Assessment Snapshot</h2>
+      <div class="stat-grid">
+        <article class="stat-card">
+          <span>Total Assessments</span>
+          <strong id="statTotal">0</strong>
+        </article>
+        <article class="stat-card">
+          <span>Queued / Running</span>
+          <strong id="statActive">0</strong>
+        </article>
+        <article class="stat-card">
+          <span>Completed</span>
+          <strong id="statComplete">0</strong>
+        </article>
+        <article class="stat-card">
+          <span>Failed</span>
+          <strong id="statFailed">0</strong>
+        </article>
+      </div>
+    </section>
 
-        <div class="pagination">
-          <button id="prevPage" class="secondary">Previous</button>
-          <span id="pageInfo">Page 1</span>
-          <button id="nextPage" class="secondary">Next</button>
+    <section class="panel panel-assessments">
+      <div class="section-header">
+        <h2>Assessments</h2>
+        <div class="row-actions">
+          <button id="refreshAssessments" class="secondary">Refresh</button>
+          <button id="autoPollToggle" class="secondary">Auto Poll: Off</button>
         </div>
-      </section>
+      </div>
 
-      <section class="panel panel-details">
-        <div class="section-header">
-          <h2>Finding Detail</h2>
-          <div class="row-actions">
-            <button id="analyzeFinding" class="secondary">Analyze Finding</button>
-            <button id="searchMemory" class="secondary">Find Similar (Memory)</button>
-          </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Mode</th>
+              <th>Status</th>
+              <th>Created</th>
+              <th>Findings</th>
+            </tr>
+          </thead>
+          <tbody id="assessmentsTable"></tbody>
+        </table>
+      </div>
+      <div class="pagination">
+        <button id="asmPrevPage" class="secondary">Previous</button>
+        <span id="asmPageInfo">Page 1</span>
+        <button id="asmNextPage" class="secondary">Next</button>
+      </div>
+    </section>
+
+    <section class="panel panel-findings">
+      <div class="section-header">
+        <h2>Findings Grid</h2>
+        <div class="row-actions">
+          <p id="selectedAssessmentLabel" class="muted">Select an assessment to load findings.</p>
+          <button id="exportCsv" class="secondary">Export CSV</button>
+          <button id="exportJson" class="secondary">Export JSON</button>
         </div>
-        <pre id="findingDetail">Select a finding row to inspect full details.</pre>
-      </section>
+      </div>
 
-      <section class="panel panel-charts">
-        <h2>Security Analytics</h2>
-        <div class="chart-grid">
-          <article class="chart-card">
-            <h3>Severity Distribution</h3>
-            <canvas id="severityChart" width="640" height="280"></canvas>
-          </article>
-          <article class="chart-card">
-            <h3>Findings Trend by Assessment</h3>
-            <canvas id="trendChart" width="640" height="280"></canvas>
-          </article>
+      <div class="filters">
+        <input id="searchInput" type="text" placeholder="Search findings…" />
+        <select id="searchFieldFilter" title="Search in">
+          <option value="title_description">Title & description</option>
+          <option value="title">Title only</option>
+          <option value="description">Description only</option>
+          <option value="category">Category</option>
+          <option value="agent">Agent</option>
+          <option value="location">Location</option>
+          <option value="remediation">Remediation</option>
+        </select>
+        <select id="severityFilter">
+          <option value="">All Severities</option>
+          <option value="critical">Critical</option>
+          <option value="high">High</option>
+          <option value="medium">Medium</option>
+          <option value="low">Low</option>
+          <option value="info">Info</option>
+        </select>
+        <select id="agentFilter">
+          <option value="">All Agents</option>
+        </select>
+        <select id="categoryFilter">
+          <option value="">All Categories</option>
+        </select>
+        <select id="sortBy">
+          <option value="severity">Sort: Severity</option>
+          <option value="created_at">Sort: Created</option>
+        </select>
+      </div>
+
+      <div class="table-wrap findings-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Severity</th>
+              <th>Category</th>
+              <th>Title</th>
+              <th>Agent</th>
+              <th>Location</th>
+              <th>Created</th>
+            </tr>
+          </thead>
+          <tbody id="findingsTable"></tbody>
+        </table>
+      </div>
+
+      <div class="pagination">
+        <button id="prevPage" class="secondary">Previous</button>
+        <span id="pageInfo">Page 1</span>
+        <button id="nextPage" class="secondary">Next</button>
+      </div>
+    </section>
+
+    <section class="panel panel-details">
+      <div class="section-header">
+        <h2>Finding Detail</h2>
+        <div class="row-actions">
+          <button id="analyzeFinding" class="secondary">Analyze Finding</button>
+          <button id="searchMemory" class="secondary">Find Similar (Memory)</button>
         </div>
-      </section>
-    </main>
+      </div>
+      <pre id="findingDetail">Select a finding row to inspect full details.</pre>
+    </section>
 
-    <script src="./app.js"></script>
-  </body>
+    <section class="panel panel-charts">
+      <h2>Security Analytics</h2>
+      <div class="chart-grid">
+        <article class="chart-card">
+          <h3>Severity Distribution</h3>
+          <canvas id="severityChart" width="640" height="280"></canvas>
+        </article>
+        <article class="chart-card">
+          <h3>Findings Trend by Assessment</h3>
+          <canvas id="trendChart" width="640" height="280"></canvas>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <script src="./app.js"></script>
+</body>
+
 </html>
