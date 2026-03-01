@@ -111,7 +111,8 @@
       <h2>Introduction</h2>
       <p><strong>VibeCheck</strong> is a public HTTP API that security-scans vibe-coded apps in two modes —
         <strong>lightweight</strong> static analysis of source code and <strong>robust</strong> AI-powered red-teaming
-        of running applications through a built-in WebSocket reverse tunnel.</p>
+        of running applications through a built-in WebSocket reverse tunnel.
+      </p>
       <p><strong>Lightweight mode</strong> analyzes source code via five static scanners (dependency, pattern, secret,
         config, and Gemini contextual). <strong>Robust mode</strong> deploys four Gemini-powered AI agents (recon, auth,
         injection, config) that actively probe a live target.</p>
@@ -125,6 +126,77 @@
         <span class="badge-pill">Zero Auth</span>
         <span class="badge-pill">Gemini AI Agents</span>
         <span class="badge-pill">OpenAPI /docs</span>
+      </div>
+    </section>
+
+    <!-- ── Quick Start Guide ── -->
+    <section class="doc-section" id="quickstart">
+      <h2>⚡ Quick Start Guide</h2>
+      <p>Get from zero to security findings in <strong>3 steps</strong>. We'll scan a real vulnerable repository — <a
+          href="https://github.com/vulnerable-apps/damn-vulnerable-MCP-server"
+          target="_blank">damn-vulnerable-MCP-server</a> — to show you exactly how VibeCheck works.</p>
+
+      <h3>Step 1 — Check API Health</h3>
+      <p>Verify the API is up and running:</p>
+      <div class="code-block-wrapper"><button class="copy-btn" onclick="copyCodeBlock(this)">Copy</button>
+        <div class="code-block">curl https://vibecheck-8a86536e.aedify.ai/v1/health</div>
+      </div>
+      <p>You should see <code>{"status": "healthy", ...}</code>. Try it below in the <a href="#ep-health">Health
+          endpoint</a>.</p>
+
+      <h3>Step 2 — Create a Scan</h3>
+      <p>Submit the vulnerable repo for lightweight static analysis. This scans the code for SQL injection, hardcoded
+        secrets, XSS, insecure configs, and more:</p>
+      <div class="code-block-wrapper"><button class="copy-btn" onclick="copyCodeBlock(this)">Copy</button>
+        <div class="code-block">curl -X POST https://vibecheck-8a86536e.aedify.ai/v1/assessments \
+          -H "Content-Type: application/json" \
+          -d '{"mode": "lightweight", "repo_url": "https://github.com/vulnerable-apps/damn-vulnerable-MCP-server"}'
+        </div>
+      </div>
+      <p>The API returns <code>202 Accepted</code> with an assessment object. Copy the <code>id</code> field (e.g.
+        <code>asm_abc123</code>) — you'll need it for every following step.
+      </p>
+      <div class="code-block-wrapper"><button class="copy-btn" onclick="copyCodeBlock(this)">Copy</button>
+        <div class="code-block">// Example response
+          {
+          "id": "asm_abc123",
+          "mode": "lightweight",
+          "status": "queued",
+          "repo_url": "https://github.com/vulnerable-apps/damn-vulnerable-MCP-server",
+          "finding_counts": {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0, "total": 0},
+          "created_at": "2026-02-28T12:00:00Z"
+          }</div>
+      </div>
+
+      <h3>Step 3 — Poll for Completion</h3>
+      <p>The scan runs in the background. Poll the assessment status until it reaches <code>complete</code>:</p>
+      <div class="code-block-wrapper"><button class="copy-btn" onclick="copyCodeBlock(this)">Copy</button>
+        <div class="code-block">curl https://vibecheck-8a86536e.aedify.ai/v1/assessments/asm_abc123</div>
+      </div>
+      <p>Status progression: <code>queued</code> → <code>cloning</code> → <code>analyzing</code> → <code>complete</code>
+        (usually ~30-60 seconds).</p>
+
+      <h3>Step 4 — View Findings</h3>
+      <p>Once complete, fetch the security findings:</p>
+      <div class="code-block-wrapper"><button class="copy-btn" onclick="copyCodeBlock(this)">Copy</button>
+        <div class="code-block">curl https://vibecheck-8a86536e.aedify.ai/v1/assessments/asm_abc123/findings</div>
+      </div>
+      <p>You'll see findings like SQL injection, hardcoded secrets, command injection, and more — each with severity,
+        description, location, and remediation advice.</p>
+
+      <h3>Step 5 — Deep-Dive with AI Analysis</h3>
+      <p>Pick any finding and get Gemini AI-powered analysis with root cause, impact assessment, and an actionable fix
+        plan:</p>
+      <div class="code-block-wrapper"><button class="copy-btn" onclick="copyCodeBlock(this)">Copy</button>
+        <div class="code-block">curl -X POST
+          https://vibecheck-8a86536e.aedify.ai/v1/assessments/asm_abc123/findings/fnd_abc123/analyze \
+          -H "Content-Type: application/json" \
+          -d '{"focus": "How can an attacker exploit this?"}'</div>
+      </div>
+
+      <div class="ws-note"><strong>💡 Tip:</strong> All the <strong>Try It</strong> panels below are pre-filled with
+        <code>asm_abc123</code> as a demo ID. Create your own assessment first (Step 2), then replace the ID in any
+        panel to explore your real results!
       </div>
     </section>
 
@@ -205,75 +277,6 @@
       </div>
       <p>Standard query parameters: <code>page</code> (int, default 1) and <code>per_page</code> (int, default 20, max
         100).</p>
-    </section>
-
-    <!-- ── Quick Start Guide ── -->
-    <section class="doc-section" id="quickstart">
-      <h2>⚡ Quick Start Guide</h2>
-      <p>Get from zero to security findings in <strong>3 steps</strong>. We'll scan a real vulnerable repository — <a
-          href="https://github.com/vulnerable-apps/damn-vulnerable-MCP-server"
-          target="_blank">damn-vulnerable-MCP-server</a> — to show you exactly how VibeCheck works.</p>
-
-      <h3>Step 1 — Check API Health</h3>
-      <p>Verify the API is up and running:</p>
-      <div class="code-block-wrapper"><button class="copy-btn" onclick="copyCodeBlock(this)">Copy</button>
-        <div class="code-block">curl https://vibecheck-8a86536e.aedify.ai/v1/health</div>
-      </div>
-      <p>You should see <code>{"status": "healthy", ...}</code>. Try it below in the <a href="#ep-health">Health
-          endpoint</a>.</p>
-
-      <h3>Step 2 — Create a Scan</h3>
-      <p>Submit the vulnerable repo for lightweight static analysis. This scans the code for SQL injection, hardcoded
-        secrets, XSS, insecure configs, and more:</p>
-      <div class="code-block-wrapper"><button class="copy-btn" onclick="copyCodeBlock(this)">Copy</button>
-        <div class="code-block">curl -X POST https://vibecheck-8a86536e.aedify.ai/v1/assessments \
-          -H "Content-Type: application/json" \
-          -d '{"mode": "lightweight", "repo_url": "https://github.com/vulnerable-apps/damn-vulnerable-MCP-server"}'
-        </div>
-      </div>
-      <p>The API returns <code>202 Accepted</code> with an assessment object. Copy the <code>id</code> field (e.g.
-        <code>asm_abc123</code>) — you'll need it for every following step.</p>
-      <div class="code-block-wrapper"><button class="copy-btn" onclick="copyCodeBlock(this)">Copy</button>
-        <div class="code-block">// Example response
-          {
-          "id": "asm_abc123",
-          "mode": "lightweight",
-          "status": "queued",
-          "repo_url": "https://github.com/vulnerable-apps/damn-vulnerable-MCP-server",
-          "finding_counts": {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0, "total": 0},
-          "created_at": "2026-02-28T12:00:00Z"
-          }</div>
-      </div>
-
-      <h3>Step 3 — Poll for Completion</h3>
-      <p>The scan runs in the background. Poll the assessment status until it reaches <code>complete</code>:</p>
-      <div class="code-block-wrapper"><button class="copy-btn" onclick="copyCodeBlock(this)">Copy</button>
-        <div class="code-block">curl https://vibecheck-8a86536e.aedify.ai/v1/assessments/asm_abc123</div>
-      </div>
-      <p>Status progression: <code>queued</code> → <code>cloning</code> → <code>analyzing</code> → <code>complete</code>
-        (usually ~30-60 seconds).</p>
-
-      <h3>Step 4 — View Findings</h3>
-      <p>Once complete, fetch the security findings:</p>
-      <div class="code-block-wrapper"><button class="copy-btn" onclick="copyCodeBlock(this)">Copy</button>
-        <div class="code-block">curl https://vibecheck-8a86536e.aedify.ai/v1/assessments/asm_abc123/findings</div>
-      </div>
-      <p>You'll see findings like SQL injection, hardcoded secrets, command injection, and more — each with severity,
-        description, location, and remediation advice.</p>
-
-      <h3>Step 5 — Deep-Dive with AI Analysis</h3>
-      <p>Pick any finding and get Gemini AI-powered analysis with root cause, impact assessment, and an actionable fix
-        plan:</p>
-      <div class="code-block-wrapper"><button class="copy-btn" onclick="copyCodeBlock(this)">Copy</button>
-        <div class="code-block">curl -X POST
-          https://vibecheck-8a86536e.aedify.ai/v1/assessments/asm_abc123/findings/fnd_abc123/analyze \
-          -H "Content-Type: application/json" \
-          -d '{"focus": "How can an attacker exploit this?"}'</div>
-      </div>
-
-      <div class="ws-note"><strong>💡 Tip:</strong> All the <strong>Try It</strong> panels below are pre-filled with
-        <code>asm_abc123</code> as a demo ID. Create your own assessment first (Step 2), then replace the ID in any
-        panel to explore your real results!</div>
     </section>
 
     <!-- ═══════════════════════════════════════════ -->
@@ -536,7 +539,8 @@
         <div class="endpoint-body">
           <div class="endpoint-body-inner">
             <p>Get full assessment detail. Status progresses: <code>queued</code> → <code>cloning</code> →
-              <code>analyzing</code> → <code>scanning</code> → <code>complete</code> | <code>failed</code>.</p>
+              <code>analyzing</code> → <code>scanning</code> → <code>complete</code> | <code>failed</code>.
+            </p>
             <h4>Path Parameters</h4>
             <table class="doc-table">
               <thead>
@@ -608,7 +612,8 @@
         <div class="endpoint-body">
           <div class="endpoint-body-inner">
             <p>Re-run a completed or failed assessment. Clears existing findings and logs, resets status to
-              <code>queued</code>. Returns <code>409</code> if the assessment is still in progress.</p>
+              <code>queued</code>. Returns <code>409</code> if the assessment is still in progress.
+            </p>
             <div class="try-it" data-method="POST" data-path="/v1/assessments/{id}/rerun">
               <h4>🧪 Try It</h4>
               <div class="try-field"><label>Assessment ID</label><input class="try-pathparam" data-key="id" type="text"
@@ -964,7 +969,8 @@
         <div class="endpoint-body">
           <div class="endpoint-body-inner">
             <p>Get a single agent by name. Valid names: <code>recon</code>, <code>auth</code>, <code>injection</code>,
-              <code>config</code>, <code>static</code>.</p>
+              <code>config</code>, <code>static</code>.
+            </p>
             <div class="try-it" data-method="GET" data-path="/v1/agents/{name}">
               <h4>🧪 Try It</h4>
               <div class="try-field"><label>Agent Name</label>
