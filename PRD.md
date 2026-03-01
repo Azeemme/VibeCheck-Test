@@ -1,86 +1,84 @@
-﻿
-# VibeCheck API - Product Requirements Document
+
+# VibeCheck API — Product Requirements Document
 
 ## Project Overview
 
 **Project:** VibeCheck API
-**Event:** HackIllinois 2026 - Stripe Track: Best Web API
+**Event:** HackIllinois 2026 — Stripe Track: Best Web API
 **Prize:** 1st: $2,000 + JBL headphones | Honorable mention: $500 + $100 Amazon GC
-**Deployed at:** https://vibecheck-api.fly.dev (or similar)
+**Deployed at:** https://vibecheck-test-1beb2409.aedify.ai
 
-**One-liner:** A public API that security-scans vibe-coded apps in two modes: lightweight (scans a GitHub repo or uploaded directory) and robust (AI agents red-team your running app through a WebSocket tunnel). IDE agents like Cursor can call it autonomously with a simple rules file.
+**One-liner:** A public HTTP API that security-scans vibe-coded apps in two modes — lightweight static analysis of source code and robust AI-powered red-teaming of running applications through a built-in WebSocket reverse tunnel.
 
 ---
 
 ## Architecture
 
 ```
-                         ┌──────────────────────────────┐
-                         │    VibeCheck API (Public)     │
-                         │    vibecheck-api.fly.dev      │
-                         │                              │
-                         │  ┌───────┐  ┌─────────────┐ │
-    GitHub ──clone──────▶│  │ Light │  │   Robust    │ │
-                         │  │ weight│  │   Scanner   │ │
-                         │  │Scanner│  │  (AI Agents)│ │
-                         │  └───────┘  └──────┬──────┘ │
-                         │                    │        │
-                         │  ┌─────────────────▼──────┐ │
-                         │  │   WebSocket Tunnel     │ │
-                         │  │   Proxy Manager        │ │
-                         │  └─────────────┬──────────┘ │
-                         │                │            │
-                         │  ┌──────────┐  │ ┌────────┐ │
-                         │  │ SQLite/  │  │ │ Claude │ │
-                         │  │ Postgres │  │ │  API   │ │
-                         │  └──────────┘  │ └────────┘ │
-                         └────────────────┼────────────┘
-                                          │
-                              WebSocket   │
-                              Connection  │
-                                          │
-                         ┌────────────────▼────────────┐
-                         │   Developer's Machine        │
-                         │                              │
-  ┌───────────┐          │  ┌────────────────────────┐ │
-  │  Cursor / │──HTTP───▶│  │  vibecheck connect     │ │
-  │  Claude   │  to API  │  │  (WS client)           │ │
-  │  Code     │          │  │                        │ │
-  └───────────┘          │  │  Proxies API requests  │ │
-                         │  │  to localhost:3000     │ │
-                         │  └────────────┬───────────┘ │
-                         │               │             │
-                         │  ┌────────────▼───────────┐ │
-                         │  │  User's App            │ │
-                         │  │  localhost:3000         │ │
-                         │  └────────────────────────┘ │
-                         └──────────────────────────────┘
+┌──────────────────────────────────────────────────────────────┐
+│  VibeCheck API (Public)                                       │
+│  vibecheck-test-1beb2409.aedify.ai                            │
+│                                                               │
+│  ┌─────────────┐  ┌───────────────┐  ┌────────────────────┐ │
+│  │ Lightweight  │  │    Robust     │  │  Frontend Dashboard│ │
+│  │  Scanner     │  │   Scanner     │  │  (served at /)     │ │
+│  │ (5 modules)  │  │ (4 AI agents) │  └────────────────────┘ │
+│  └─────────────┘  └───────┬───────┘                          │
+│                           │                                   │
+│  ┌──────────────────────┐ │  ┌───────────┐  ┌─────────────┐ │
+│  │  SQLite / Postgres   │ │  │ Supermemory│  │   Gemini    │ │
+│  └──────────────────────┘ │  └───────────┘  └─────────────┘ │
+│                           │                                   │
+│  ┌────────────────────────▼──────────────────────────────┐   │
+│  │  WebSocket Tunnel Proxy (/v1/tunnel)                   │   │
+│  └────────────────────────┬──────────────────────────────┘   │
+└───────────────────────────┼──────────────────────────────────┘
+                            │ WebSocket
+┌───────────────────────────▼──────────────────────────────────┐
+│  Developer's Machine                                          │
+│                                                               │
+│  ┌─────────────────────┐    ┌──────────────────────────────┐ │
+│  │ vibecheck connect   │───▶│  User's App (localhost:3000) │ │
+│  │ (tunnel client)     │    └──────────────────────────────┘ │
+│  └─────────────────────┘                                      │
+│                                                               │
+│  ┌─────────────────────┐                                      │
+│  │ Cursor / IDE Agent  │── HTTP to API ──────────────────────▶│
+│  └─────────────────────┘                                      │
+└──────────────────────────────────────────────────────────────┘
 ```
 
-### Lightweight Mode
-1. User sends a GitHub repo URL (or directory contents) to the API
-2. API clones the repo (or receives the files), analyzes code for vulnerabilities
-3. Returns findings
+### Lightweight Mode Flow
 
-### Robust Mode
-1. User runs `vibecheck connect <port>` on their machine
-2. Client opens a WebSocket to the public API, receives a session ID
-3. User (or IDE agent) calls `POST /v1/assessments` with `mode: "robust"` and the session ID
-4. API's AI agents generate HTTP requests to probe the app
-5. API forwards each request through the WebSocket tunnel to the user's machine
-6. Client makes the actual `localhost:<port>` request, sends the response back over WS
-7. Agents analyze responses, adapt strategy, report findings
+1. User sends a GitHub repo URL or file contents to `POST /v1/assessments`
+2. API clones the repo (or uses uploaded files)
+3. Five static scanners analyze the code: dependency, pattern, secret, config, and (optionally) Gemini contextual
+4. Findings are persisted and ingested into Supermemory
+5. Assessment status transitions: `queued` → `cloning` → `analyzing` → `complete`
 
-This is essentially a built-in reverse tunnel. No ngrok, no cloudflared, no third-party dependencies.
+### Robust Mode Flow
+
+1. User starts their app locally (e.g. `localhost:3000`)
+2. User runs `vibecheck connect 3000` — client opens WebSocket to `/v1/tunnel`, receives session ID
+3. User (or IDE agent) creates a robust assessment with `target_url` and optionally `tunnel_session_id`
+4. Four Gemini-powered AI agents sequentially probe the target:
+   - Each agent uses `http_request`, `check_headers`, and `report_finding` tools
+   - Requests to localhost targets are proxied through the WebSocket tunnel
+   - Public targets are hit directly via httpx
+5. Agents log their reasoning as `AgentLog` entries; confirmed vulnerabilities are saved as `Finding` entries
+6. Assessment status transitions: `queued` → `scanning` → `complete`
 
 ---
 
 ## Judging Criteria Alignment
 
-**Functionality:** Both modes end-to-end working, proper HTTP status codes, error handling
-**Usefulness & Creativity:** Real problem, novel approach (built-in WS tunnel + AI red teaming), trending topic
-**API Design:** REST best practices, pagination, filtering, idempotency, multiple HTTP methods, stateful (assessments, tunnel sessions)
-**Documentation & DX:** Auto-generated OpenAPI docs, cURL examples, IDE rules file, clear errors
+| Criterion | How VibeCheck addresses it |
+|---|---|
+| **Functionality** | 18 endpoints (16 HTTP + 2 WebSocket), proper status codes (202, 204, 400, 404, 409, 422, 502), background processing with status tracking |
+| **Usefulness & Creativity** | Real problem (security scanning for AI-generated code), novel approach (built-in WS reverse tunnel + AI red-teaming), trending topic |
+| **API Design** | REST best practices, pagination with metadata, multi-field filtering, text search, severity-ordered sorting, idempotency keys, HATEOAS links, consistent error envelope |
+| **Attention to Detail** | POST creates → GET lists/retrieves → DELETE removes, rerun endpoint, WebSocket live status, request ID tracing, domain-specific severity ordering |
+| **Documentation & DX** | Auto-generated OpenAPI at /docs and /redoc, comprehensive README with cURL examples, consistent error messages with machine-readable codes, zero-auth for hackathon DX |
 
 ---
 
@@ -88,376 +86,192 @@ This is essentially a built-in reverse tunnel. No ngrok, no cloudflared, no thir
 
 | Component | Technology | Rationale |
 |---|---|---|
-| API Framework | FastAPI (Python) | Auto OpenAPI docs, async, WebSocket support built-in |
-| AI Agents | Anthropic Claude API (tool use) | Agentic red teaming with tool calling |
-| Static Analysis | Regex + entropy + Claude contextual analysis | Speed + intelligence |
-| Database | SQLite (SQLAlchemy async) | Zero-config, swap to Postgres for prod |
-| WebSocket Tunnel | FastAPI WebSocket + Python client script | Built-in, no third-party tunnel deps |
-| Git Operations | `git` CLI (subprocess) or `gitpython` | Clone repos for lightweight scanning |
-| Deployment | Fly.io | Free tier, bonus points for public API |
-| Docs | FastAPI Swagger UI + ReDoc | Auto-generated from code |
+| API Framework | **FastAPI** (Python 3.11+) | Auto OpenAPI docs, async, native WebSocket support |
+| AI Agents | **Google Gemini** (gemini-2.5-flash) | Function-calling for agentic red-teaming |
+| Static Analysis | Regex + entropy + Gemini contextual | Speed (regex) + intelligence (LLM) |
+| Database | **SQLite** (aiosqlite) / **Postgres** (asyncpg) | Zero-config dev, production-ready swap |
+| ORM | **SQLAlchemy 2.x** (async) | Async sessions, type-safe models |
+| Validation | **Pydantic v2** + **pydantic-settings** | Schema enforcement, env config |
+| HTTP Client | **httpx** | Async HTTP for agents and tunnel proxy |
+| Memory / RAG | **Supermemory** | Semantic search across historical findings |
+| WebSocket Tunnel | FastAPI WebSocket + Python client | Built-in reverse tunnel, no third-party deps |
+| Frontend | Vanilla HTML/CSS/JS | Dashboard with charts, filters, real-time updates |
+| MCP Server | **FastMCP** | IDE integration for Cursor |
+| Deployment | **Docker** (non-root containers) | Single-container deployment |
 
 ---
 
 ## Data Models
 
-### Assessment
+### Assessment (`assessments`)
 
-```python
-class Assessment:
-    id: str                    # "asm_" + 12 hex chars
-    mode: "lightweight" | "robust"
-    status: "queued" | "cloning" | "analyzing" | "scanning" | "complete" | "failed"
-    # Lightweight fields
-    repo_url: str | None       # GitHub repo URL
-    # Robust fields
-    tunnel_session_id: str | None  # Links to an active WS tunnel
-    agents: list[str] | None
-    depth: str                 # "quick" | "standard" | "deep"
-    # Shared
-    finding_counts: dict       # {critical, high, medium, low, info, total}
-    idempotency_key: str | None
-    error_type: str | None
-    error_message: str | None
-    created_at: datetime
-    updated_at: datetime
-    completed_at: datetime | None
-```
+| Column | Type | Notes |
+|---|---|---|
+| `id` | string | PK, `asm_` + 12 hex chars |
+| `mode` | string | `lightweight` or `robust` |
+| `status` | string | `queued`, `cloning`, `analyzing`, `scanning`, `complete`, `failed` |
+| `repo_url` | string? | GitHub URL (lightweight) |
+| `target_url` | string? | Target URL (robust) |
+| `tunnel_session_id` | string? | Links to active WS tunnel |
+| `agents` | JSON? | Agent list (robust) |
+| `depth` | string | `quick`, `standard`, `deep` |
+| `idempotency_key` | string? | Unique, indexed |
+| `finding_counts` | JSON | `{critical, high, medium, low, info, total}` |
+| `error_type` | string? | Error code on failure |
+| `error_message` | string? | Error detail on failure |
+| `created_at` | datetime | Auto-set |
+| `updated_at` | datetime | Auto-updated |
+| `completed_at` | datetime? | Set on completion |
 
-### Finding
+### Finding (`findings`)
 
-```python
-class Finding:
-    id: str                    # "fnd_" + 12 hex chars
-    assessment_id: str
-    severity: "critical" | "high" | "medium" | "low" | "info"
-    category: str
-    title: str
-    description: str
-    location: dict | None      # {file, line, column} or {url, method, parameter}
-    evidence: dict | None      # {payload, response_code, response_preview}
-    remediation: str
-    agent: str | None
-    created_at: datetime
-```
+| Column | Type | Notes |
+|---|---|---|
+| `id` | string | PK, `fnd_` + 12 hex chars |
+| `assessment_id` | string | FK → assessments, indexed |
+| `severity` | string | `critical`, `high`, `medium`, `low`, `info` |
+| `category` | string | e.g. `sql_injection`, `xss`, `hardcoded_secret` |
+| `title` | string | Human-readable summary |
+| `description` | text | Detailed explanation |
+| `location` | JSON? | `{file, line, snippet}` or `{url, method, parameter}` |
+| `evidence` | JSON? | `{payload, response_code, response_preview}` |
+| `remediation` | text | How to fix |
+| `agent` | string? | Which scanner/agent found it |
+| `created_at` | datetime | Auto-set |
 
-### AgentLog
+### AgentLog (`agent_logs`)
 
-```python
-class AgentLog:
-    id: str                    # "log_" + 12 hex chars
-    assessment_id: str
-    agent: str
-    step: int
-    action: str
-    target: str
-    payload: str | None
-    response_code: int | None
-    response_preview: str | None
-    reasoning: str
-    finding_id: str | None
-    timestamp: datetime
-```
+| Column | Type | Notes |
+|---|---|---|
+| `id` | string | PK, `log_` + 12 hex chars |
+| `assessment_id` | string | FK → assessments, indexed |
+| `agent` | string | Agent name |
+| `step` | int | Step number in agent run |
+| `action` | string | What the agent did |
+| `target` | string | Target path/URL |
+| `payload` | text? | Request payload |
+| `response_code` | int? | HTTP response status |
+| `response_preview` | text? | Truncated response |
+| `reasoning` | text | Agent's reasoning |
+| `finding_id` | string? | If this step reported a finding |
+| `timestamp` | datetime | Auto-set |
 
-### TunnelSession
+### TunnelSession (`tunnel_sessions`)
 
-```python
-class TunnelSession:
-    id: str                    # "tun_" + 12 hex chars
-    target_port: int           # Port on user's machine
-    status: "connected" | "disconnected"
-    created_at: datetime
-    last_heartbeat: datetime
-```
+| Column | Type | Notes |
+|---|---|---|
+| `id` | string | PK, `tun_` + 12 hex chars |
+| `target_port` | int | Port on user's machine |
+| `status` | string | `connected` or `disconnected` |
+| `created_at` | datetime | Auto-set |
+| `last_heartbeat` | datetime | Updated on pong |
 
 ---
 
-## API Endpoints
+## API Endpoints (18 total)
 
 ### Assessments
 
-```
-POST   /v1/assessments                Create scan (lightweight or robust)
-GET    /v1/assessments                List assessments (paginated, filterable)
-GET    /v1/assessments/{id}           Get status + summary
-DELETE /v1/assessments/{id}           Delete assessment + findings + logs
-POST   /v1/assessments/{id}/rerun     Re-run assessment
-```
+| Method | Path | Description | Status |
+|---|---|---|---|
+| POST | `/v1/assessments` | Create scan (lightweight or robust) | 202 |
+| GET | `/v1/assessments` | List assessments (paginated, filterable) | 200 |
+| GET | `/v1/assessments/{id}` | Get assessment detail | 200 |
+| WebSocket | `/v1/assessments/{id}/ws` | Live status stream | — |
+| DELETE | `/v1/assessments/{id}` | Delete assessment + findings + logs | 204 |
+| POST | `/v1/assessments/{id}/rerun` | Re-run completed/failed assessment | 202 |
 
 ### Findings
 
-```
-GET    /v1/assessments/{id}/findings              Paginated, filterable
-GET    /v1/assessments/{id}/findings/{finding_id}  Single finding
-```
+| Method | Path | Description | Status |
+|---|---|---|---|
+| GET | `/v1/assessments/{id}/findings` | List findings (paginated, filterable, searchable) | 200 |
+| GET | `/v1/assessments/{id}/findings/{fid}` | Get single finding | 200 |
+| POST | `/v1/assessments/{id}/findings/{fid}/analyze` | AI-powered finding analysis | 200 |
 
 ### Agent Logs
 
-```
-GET    /v1/assessments/{id}/logs      Agent activity (robust mode only)
-```
+| Method | Path | Description | Status |
+|---|---|---|---|
+| GET | `/v1/assessments/{id}/logs` | Agent activity (robust only) | 200 |
+
+### Agents
+
+| Method | Path | Description | Status |
+|---|---|---|---|
+| GET | `/v1/agents` | List available agents | 200 |
+| GET | `/v1/agents/{name}` | Agent detail | 200 |
 
 ### Tunnel
 
-```
-WebSocket  /v1/tunnel                 WebSocket endpoint for tunnel client
-GET        /v1/tunnel/sessions        List active tunnel sessions
-GET        /v1/tunnel/sessions/{id}   Get tunnel session status
-```
+| Method | Path | Description | Status |
+|---|---|---|---|
+| WebSocket | `/v1/tunnel` | Tunnel client connection | — |
+| GET | `/v1/tunnel/sessions` | List tunnel sessions | 200 |
+| GET | `/v1/tunnel/sessions/{id}` | Tunnel session detail | 200 |
+
+### Memory
+
+| Method | Path | Description | Status |
+|---|---|---|---|
+| GET | `/v1/memory/status` | Check Supermemory enabled | 200 |
+| GET | `/v1/memory/search` | Semantic search across findings | 200 |
 
 ### Reference
 
-```
-GET    /v1/agents                     List available agents
-GET    /v1/agents/{name}              Agent detail
-GET    /v1/health                     Health check
-GET    /docs                          Swagger UI
-GET    /redoc                         ReDoc
-```
+| Method | Path | Description |
+|---|---|---|
+| GET | `/v1/health` | Health check |
+| GET | `/docs` | Swagger UI |
+| GET | `/redoc` | ReDoc |
 
 ---
 
-## Endpoint Specifications
+## Lightweight Scanning Modules
 
-### POST /v1/assessments
-
-**Lightweight (GitHub repo):**
-```json
-{
-  "mode": "lightweight",
-  "repo_url": "https://github.com/user/my-vibe-coded-app"
-}
-```
-
-**Lightweight (direct file upload):**
-```json
-{
-  "mode": "lightweight",
-  "files": [
-    {
-      "path": "src/api/users.ts",
-      "content": "import { db } from '../db';\n\nexport async function GET(req) {\n  const id = req.nextUrl.searchParams.get('id');\n  const user = await db.query(`SELECT * FROM users WHERE id = ${id}`);\n  return Response.json(user);\n}"
-    },
-    {
-      "path": "package.json",
-      "content": "{\"dependencies\": {\"next\": \"^14.0.0\", \"pg\": \"^8.11.0\"}}"
-    }
-  ]
-}
-```
-
-**Robust:**
-```json
-{
-  "mode": "robust",
-  "tunnel_session_id": "tun_a1b2c3d4e5f6",
-  "agents": ["recon", "auth", "injection", "config"],
-  "depth": "standard"
-}
-```
-
-**Response (202 Accepted):**
-```json
-{
-  "id": "asm_a1b2c3d4e5f6",
-  "mode": "lightweight",
-  "status": "queued",
-  "repo_url": "https://github.com/user/my-vibe-coded-app",
-  "created_at": "2026-02-28T12:00:00Z",
-  "links": {
-    "self": "/v1/assessments/asm_a1b2c3d4e5f6",
-    "findings": "/v1/assessments/asm_a1b2c3d4e5f6/findings",
-    "logs": "/v1/assessments/asm_a1b2c3d4e5f6/logs"
-  }
-}
-```
-
-**Errors:**
-| Code | Status | When |
+| Module | Detects | Severity Range |
 |---|---|---|
-| INVALID_MODE | 400 | Mode not "lightweight" or "robust" |
-| MISSING_REPO_URL | 400 | Lightweight with no repo_url and no files |
-| MISSING_TUNNEL_SESSION | 400 | Robust with no tunnel_session_id |
-| INVALID_REPO_URL | 400 | Cannot parse as GitHub URL |
-| TUNNEL_NOT_CONNECTED | 400 | tunnel_session_id doesn't have an active connection |
-| INVALID_AGENT | 400 | Unknown agent name |
-| CLONE_FAILED | 502 | Failed to clone the repo (private, doesn't exist) |
-| DUPLICATE_IDEMPOTENCY_KEY | 409 | Same key, different params |
+| **Dependency scanner** | Known CVEs in 30 popular Node.js and Python packages | critical — info |
+| **Pattern scanner** | SQL injection, XSS, code/command injection, insecure deserialization, debug mode, CORS, sensitive logging (15 regex patterns) | critical — low |
+| **Secret scanner** | AWS keys, GitHub/Stripe/Slack/SendGrid/Twilio/Google tokens, JWT secrets, DB URLs, PEM keys, high-entropy strings | critical — high |
+| **Config scanner** | Exposed .env, missing .gitignore, Docker as root, network exposure, framework misconfig, supply chain scripts | critical — info |
+| **Gemini contextual** | Business logic flaws, broken auth, data exposure, crypto misuse, framework-specific issues | critical — info |
 
-### GET /v1/assessments
+---
 
-**Query params:** `page`, `per_page`, `mode`, `status`, `sort` (default "-created_at")
+## Robust Scanning Agents
 
-```json
-{
-  "data": [ ... ],
-  "pagination": { "page": 1, "per_page": 20, "total": 42, "total_pages": 3 }
-}
-```
+| Agent | System Prompt Focus | Tools |
+|---|---|---|
+| **Recon** | Map attack surface, find exposed files (.env, .git), admin panels, debug endpoints, API docs | `http_request`, `check_headers`, `report_finding` |
+| **Auth** | Test missing auth, default credentials, IDOR, role escalation, JWT manipulation | `http_request`, `check_headers`, `report_finding` |
+| **Injection** | Prove SQL injection, XSS, command injection, template injection with real payloads | `http_request`, `check_headers`, `report_finding` |
+| **Config** | Check security headers, CORS, error handling, server/framework disclosure | `http_request`, `check_headers`, `report_finding` |
 
-### GET /v1/assessments/{id}
+Step limits: quick=5, standard=15, deep=30.
 
-```json
-{
-  "id": "asm_a1b2c3d4e5f6",
-  "mode": "robust",
-  "status": "complete",
-  "tunnel_session_id": "tun_x1y2z3w4a5b6",
-  "agents": ["recon", "auth", "injection", "config"],
-  "depth": "standard",
-  "created_at": "2026-02-28T12:00:00Z",
-  "completed_at": "2026-02-28T12:03:45Z",
-  "finding_counts": {
-    "critical": 2, "high": 3, "medium": 1, "low": 0, "info": 2, "total": 8
-  },
-  "links": { ... }
-}
-```
+---
 
-### GET /v1/assessments/{id}/findings
-
-**Query params:** `page`, `per_page`, `severity`, `category`, `agent`, `sort`
-
-```json
-{
-  "data": [
-    {
-      "id": "fnd_x1y2z3w4a5b6",
-      "severity": "critical",
-      "category": "sql_injection",
-      "title": "SQL Injection in /api/search endpoint",
-      "description": "The search parameter is concatenated directly into a SQL query without parameterization.",
-      "location": { "type": "endpoint", "url": "/api/search", "method": "GET", "parameter": "q" },
-      "evidence": {
-        "payload": "' OR 1=1 --",
-        "response_code": 200,
-        "response_preview": "Returned 847 rows (expected 0-1)"
-      },
-      "remediation": "Use parameterized queries instead of string concatenation.",
-      "agent": "injection",
-      "created_at": "2026-02-28T12:02:15Z"
-    }
-  ],
-  "pagination": { ... }
-}
-```
-
-### GET /v1/assessments/{id}/logs
-
-Returns `400 LOGS_NOT_AVAILABLE` for lightweight mode.
-
-```json
-{
-  "data": [
-    {
-      "id": "log_001a002b003c",
-      "agent": "injection",
-      "step": 3,
-      "action": "POST /api/login with SQL payload in email field",
-      "target": "/api/login",
-      "payload": "admin' OR 1=1 --",
-      "response_code": 200,
-      "response_preview": "{\"token\": \"eyJhbG...\"}",
-      "reasoning": "Login endpoint accepts email/password. Testing SQL injection in email to attempt auth bypass.",
-      "finding_id": "fnd_x1y2z3w4a5b6",
-      "timestamp": "2026-02-28T12:02:10Z"
-    }
-  ],
-  "pagination": { ... }
-}
-```
-
-### WebSocket /v1/tunnel
-
-Client connects, server assigns a session ID. Protocol:
+## WebSocket Tunnel Protocol
 
 ```
-Client -> Server: {"type": "connect", "target_port": 3000}
-Server -> Client: {"type": "session_created", "session_id": "tun_abc123"}
+Client → Server: {"type": "connect", "target_port": 3000}
+Server → Client: {"type": "session_created", "session_id": "tun_abc123"}
 
-# During robust scan, server sends HTTP requests through the tunnel:
-Server -> Client: {"type": "http_request", "request_id": "req_001", "method": "GET", "path": "/api/users", "headers": {...}, "body": null}
-Client -> Server: {"type": "http_response", "request_id": "req_001", "status_code": 200, "headers": {...}, "body": "..."}
+# During robust scan:
+Server → Client: {"type": "http_request", "request_id": "req_001", "method": "GET", "path": "/api/users", "headers": {}, "body": null}
+Client → Server: {"type": "http_response", "request_id": "req_001", "status_code": 200, "headers": {}, "body": "..."}
 
-# Heartbeat to keep alive:
-Server -> Client: {"type": "ping"}
-Client -> Server: {"type": "pong"}
-```
-
-### GET /v1/tunnel/sessions
-
-```json
-{
-  "data": [
-    {
-      "id": "tun_a1b2c3d4e5f6",
-      "target_port": 3000,
-      "status": "connected",
-      "created_at": "2026-02-28T11:55:00Z",
-      "last_heartbeat": "2026-02-28T12:04:30Z"
-    }
-  ]
-}
-```
-
-### GET /v1/agents
-
-```json
-{
-  "data": [
-    {
-      "name": "recon",
-      "display_name": "Reconnaissance Agent",
-      "description": "Maps routes, discovers hidden endpoints, admin panels, debug pages, directory listings, exposed files.",
-      "categories": ["exposed_endpoints", "directory_listing", "debug_mode", "information_disclosure"],
-      "mode": "robust"
-    },
-    {
-      "name": "auth",
-      "display_name": "Authentication Agent",
-      "description": "Tests for missing auth, default credentials, broken access control (IDOR), session issues, privilege escalation.",
-      "categories": ["missing_auth", "broken_access_control", "idor", "session_manipulation"],
-      "mode": "robust"
-    },
-    {
-      "name": "injection",
-      "display_name": "Injection Agent",
-      "description": "Probes for SQL injection, XSS, command injection, template injection with real payloads.",
-      "categories": ["sql_injection", "xss", "command_injection", "template_injection"],
-      "mode": "robust"
-    },
-    {
-      "name": "config",
-      "display_name": "Configuration Agent",
-      "description": "Checks security headers, CORS, exposed stack traces, debug mode, server info disclosure.",
-      "categories": ["cors_misconfiguration", "missing_headers", "exposed_stacktrace", "insecure_tls"],
-      "mode": "robust"
-    },
-    {
-      "name": "static",
-      "display_name": "Static Analyzer",
-      "description": "Analyzes source code for hardcoded secrets, vulnerable dependencies, insecure patterns, dangerous defaults.",
-      "categories": ["hardcoded_secret", "vulnerable_dependency", "insecure_pattern", "dangerous_default"],
-      "mode": "lightweight"
-    }
-  ]
-}
-```
-
-### GET /v1/health
-
-```json
-{
-  "status": "healthy",
-  "version": "1.0.0",
-  "active_tunnels": 3,
-  "agents_available": true
-}
+# Heartbeat:
+Server → Client: {"type": "ping"}
+Client → Server: {"type": "pong"}
 ```
 
 ---
 
 ## Error Response Format
+
+All errors use a consistent envelope:
 
 ```json
 {
@@ -465,199 +279,55 @@ Client -> Server: {"type": "pong"}
     "type": "not_found",
     "message": "Assessment 'asm_abc123' not found.",
     "code": "ASSESSMENT_NOT_FOUND",
-    "param": null,
-    "doc_url": "https://vibecheck-api.fly.dev/docs#errors"
+    "param": null
   }
 }
 ```
 
----
-
-## WebSocket Tunnel Protocol
-
-### Server Side (in the API)
-
-The API maintains a dict of active tunnel sessions, keyed by session ID. Each maps to an open WebSocket connection. When an AI agent needs to make an HTTP request to the target app:
-
-1. Agent calls its `http_request` tool with a path like `/api/users`
-2. The tool handler looks up the tunnel session for the current assessment
-3. Sends an `http_request` message over the WebSocket with a unique request_id
-4. Waits for the matching `http_response` message (with timeout)
-5. Returns the response to the agent
-
-```python
-# Simplified server-side tunnel proxy
-async def tunnel_request(session_id: str, method: str, path: str, headers: dict, body: str) -> dict:
-    ws = active_tunnels[session_id]
-    request_id = generate_id("req")
-    
-    await ws.send_json({
-        "type": "http_request",
-        "request_id": request_id,
-        "method": method,
-        "path": path,
-        "headers": headers or {},
-        "body": body
-    })
-    
-    # Wait for response (with timeout)
-    response = await pending_responses[request_id].wait(timeout=15)
-    return response
-```
-
-### Client Side (tunnel connect script)
-
-A standalone Python script the user runs. ~80 lines of code.
-
-```bash
-pip install vibecheck-client
-vibecheck connect 3000
-
-# Output:
-# Connected to VibeCheck API
-# Tunnel session: tun_a1b2c3d4e5f6
-# Proxying to localhost:3000
-# Ready for robust scanning.
-```
-
-The client:
-1. Opens a WebSocket to `wss://vibecheck-api.fly.dev/v1/tunnel`
-2. Sends `{"type": "connect", "target_port": 3000}`
-3. Receives session ID, prints it
-4. Listens for `http_request` messages
-5. For each request, makes the actual HTTP call to `localhost:<port>` using httpx
-6. Sends the response back over the WebSocket
-7. Handles heartbeats to stay alive
+| HTTP | Type | Codes |
+|---|---|---|
+| 400 | validation_error, tunnel_error | INVALID_MODE, MISSING_REPO_URL, MISSING_TUNNEL_SESSION, TUNNEL_NOT_CONNECTED, INVALID_AGENT, LOGS_NOT_AVAILABLE |
+| 404 | not_found | ASSESSMENT_NOT_FOUND, FINDING_NOT_FOUND, AGENT_NOT_FOUND, TUNNELSESSION_NOT_FOUND |
+| 409 | conflict | ASSESSMENT_IN_PROGRESS, DUPLICATE_IDEMPOTENCY_KEY |
+| 422 | validation_error | VALIDATION_ERROR (Pydantic) |
+| 502 | external_error, tunnel_error | CLONE_FAILED, TARGET_UNREACHABLE |
 
 ---
 
-## IDE Integration
+## Frontend Dashboard
 
-### .cursor/rules (or equivalent)
+Served at `/` when the `frontend/` directory is present. Features:
 
-IDE agents call the public API directly via HTTP. No auth needed (hackathon MVP). The rules file teaches the agent how.
-
-```markdown
-# VibeCheck Security Scanner
-
-The VibeCheck API is running at https://vibecheck-api.fly.dev
-
-## When to use
-When the user asks to scan for security issues, check for vulnerabilities, audit security, or red-team their app.
-
-## Lightweight Scan (code analysis)
-For scanning the current project's code:
-
-1. Gather the project's source files (focus on: route handlers, API endpoints, database queries, auth logic, config files, dependency manifests)
-2. POST to https://vibecheck-api.fly.dev/v1/assessments:
-   - If it's a public GitHub repo: {"mode": "lightweight", "repo_url": "https://github.com/user/repo"}
-   - If you have local files: {"mode": "lightweight", "files": [{"path": "relative/path.ts", "content": "file contents"}, ...]}
-3. Poll GET /v1/assessments/{id} until status is "complete"
-4. GET /v1/assessments/{id}/findings to retrieve results
-5. Present findings grouped by severity, offer to fix each one
-
-## Robust Scan (live red team)
-For attacking a running application:
-
-1. Ask the user what port their app is running on
-2. Tell the user to run: vibecheck connect <port>
-3. Ask the user for the tunnel session ID that was printed
-4. POST to https://vibecheck-api.fly.dev/v1/assessments:
-   {"mode": "robust", "tunnel_session_id": "<session_id>", "agents": ["recon", "auth", "injection", "config"], "depth": "standard"}
-5. Poll GET /v1/assessments/{id} until status is "complete" (may take 2-5 minutes)
-6. GET /v1/assessments/{id}/findings for vulnerabilities with evidence
-7. GET /v1/assessments/{id}/logs for step-by-step agent reasoning
-8. Present findings and offer to fix
-
-## After fixing
-Re-scan to verify: POST /v1/assessments/{id}/rerun
-
-## Errors
-If something fails, check error.message for guidance. Common issues:
-- CLONE_FAILED: Repo is private or doesn't exist
-- TUNNEL_NOT_CONNECTED: User needs to run vibecheck connect first
-```
+- **Create Assessment** — lightweight (repo URL) or robust (target URL, tunnel session, agents, depth, idempotency key)
+- **Assessment Snapshot** — real-time counts of total, queued/running, completed, failed
+- **Assessments Table** — paginated, clickable rows to load findings
+- **Findings Grid** — filterable by severity, category, agent; searchable by title, description, category, agent, location, or remediation; sortable; paginated
+- **Finding Detail** — full JSON, "Analyze Finding" (Gemini AI), "Find Similar" (Supermemory)
+- **Export** — CSV and JSON export of filtered findings
+- **Charts** — severity distribution and findings-per-assessment trend
+- **Real-time** — WebSocket status streaming and optional 5-second auto-poll
 
 ---
 
-## Project Structure
+## MCP Server
 
-```
-vibecheck/
-├── README.md
-├── pyproject.toml
-├── Dockerfile
-├── fly.toml                     # Fly.io deployment config
-├── .env.example
-│
-├── api/
-│   ├── __init__.py
-│   ├── main.py                  # FastAPI app, middleware, router registration
-│   ├── config.py                # pydantic-settings
-│   ├── database.py              # SQLAlchemy async engine
-│   │
-│   ├── models/
-│   │   ├── assessment.py
-│   │   ├── finding.py
-│   │   ├── agent_log.py
-│   │   └── tunnel_session.py
-│   │
-│   ├── schemas/
-│   │   ├── assessment.py
-│   │   ├── finding.py
-│   │   ├── agent_log.py
-│   │   ├── tunnel.py
-│   │   └── errors.py
-│   │
-│   ├── routers/
-│   │   ├── assessments.py
-│   │   ├── findings.py
-│   │   ├── logs.py
-│   │   ├── agents.py
-│   │   ├── tunnel.py            # WebSocket endpoint + session routes
-│   │   └── health.py
-│   │
-│   ├── services/
-│   │   ├── assessment_service.py
-│   │   ├── lightweight_scanner.py  # Git clone + analysis
-│   │   ├── robust_scanner.py       # Agent orchestration
-│   │   └── tunnel_manager.py       # WebSocket session management
-│   │
-│   ├── agents/
-│   │   ├── base_agent.py
-│   │   ├── recon_agent.py
-│   │   ├── auth_agent.py
-│   │   ├── injection_agent.py
-│   │   └── config_agent.py
-│   │
-│   └── utils/
-│       ├── id_generator.py
-│       ├── pagination.py
-│       ├── errors.py
-│       └── http_client.py       # Makes requests through WS tunnel
-│
-├── client/                      # Tunnel client (pip installable)
-│   ├── pyproject.toml
-│   └── vibecheck_client/
-│       ├── __init__.py
-│       └── cli.py               # `vibecheck connect <port>`
-│
-├── ide/
-│   ├── cursor_rules.md
-│   ├── claude_code_rules.md
-│   └── README.md
-│
-├── examples/
-│   ├── vulnerable-app/          # Intentionally vulnerable Flask app
-│   │   ├── app.py
-│   │   ├── requirements.txt
-│   │   └── README.md
-│   └── curl_examples.sh
-│
-└── tests/
-    ├── conftest.py
-    ├── test_health.py
-    ├── test_assessments.py
-    ├── test_findings.py
-    ├── test_agents.py
-    └── test_tunnel.py
+IDE agents call the API through the Model Context Protocol. 10 tools:
+
+`health`, `list_agents`, `create_assessment`, `list_assessments`, `get_assessment`, `rerun_assessment`, `list_findings`, `analyze_finding`, `list_tunnel_sessions`, `memory_search`
+
+Transports: `stdio` (default), `streamable-http`, `sse`.
+
+---
+
+## Configuration
+
+| Variable | Default | Description |
+|---|---|---|
+| `DATABASE_URL` | `sqlite+aiosqlite:///./vibecheck.db` | Async DB URL |
+| `GEMINI_API_KEY` | `""` | Required for robust mode and AI analysis |
+| `GEMINI_MODEL` | `gemini-2.5-flash` | Gemini model |
+| `SUPERMEMORY_API_KEY` | `""` | Optional, enables memory search |
+| `SUPERMEMORY_BASE_URL` | `https://api.supermemory.ai` | Supermemory endpoint |
+| `SUPERMEMORY_TIMEOUT_SECONDS` | `10.0` | Supermemory timeout |
+| `CLONE_DIR` | `/tmp/vibecheck-repos` | Repo clone directory |
+| `DEBUG` | `false` | SQLAlchemy query logging |
