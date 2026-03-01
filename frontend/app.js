@@ -178,6 +178,10 @@ function populateFilterOptions() {
     if (f.agent) agents.add(f.agent);
   });
 
+  // Preserve current selections before rebuilding the dropdowns
+  const prevCategory = els.categoryFilter.value;
+  const prevAgent = els.agentFilter.value;
+
   els.categoryFilter.innerHTML = `<option value="">All Categories</option>${[...categories]
     .sort()
     .map((c) => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`)
@@ -187,6 +191,14 @@ function populateFilterOptions() {
     .sort()
     .map((a) => `<option value="${escapeHtml(a)}">${escapeHtml(a)}</option>`)
     .join("")}`;
+
+  // Restore previous selections if they still exist in the new options
+  if (prevCategory && [...els.categoryFilter.options].some((o) => o.value === prevCategory)) {
+    els.categoryFilter.value = prevCategory;
+  }
+  if (prevAgent && [...els.agentFilter.options].some((o) => o.value === prevAgent)) {
+    els.agentFilter.value = prevAgent;
+  }
 }
 
 function findingLocationText(location) {
@@ -867,8 +879,8 @@ function setupEvents() {
       const actions = (payload.actions || []).map((a, i) => `${i + 1}. ${a}`).join("\n");
       const where = payload.where_to_fix
         ? Object.entries(payload.where_to_fix)
-            .map(([k, v]) => `${k}: ${v ?? "N/A"}`)
-            .join("\n")
+          .map(([k, v]) => `${k}: ${v ?? "N/A"}`)
+          .join("\n")
         : "Not specified";
       const related = payload.memory_similar_results_count ?? 0;
       const source = payload.analysis_source || "fallback";
