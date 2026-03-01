@@ -4,7 +4,7 @@ VibeCheck API
 AI-powered security scanning for vibe-coded applications. VibeCheck exposes a public HTTP API, a WebSocket reverse tunnel, and a security dashboard that can:
 
 - **Lightweight mode** — statically analyze a GitHub repo or uploaded files for vulnerable dependencies, insecure code patterns, hardcoded secrets, and config issues.
-- **Robust mode** — red-team a running app with AI agents that send real HTTP probes and report confirmed vulnerabilities with evidence.
+- **Robust mode** — red-team any running app (deployed URL, Cloudflare Tunnel, ngrok, or localhost via built-in tunnel) with AI agents that send real HTTP probes and report confirmed vulnerabilities with evidence.
 
 **Live instance:** <https://vibecheck-test-1beb2409.aedify.ai>
 **Dashboard:** <https://vibecheck-test-1beb2409.aedify.ai>
@@ -91,7 +91,7 @@ AI-powered security scanning for vibe-coded applications. VibeCheck exposes a pu
 
 **Lightweight mode** clones a GitHub repo (or accepts uploaded files), runs five static analysis modules, persists findings, and optionally enriches results with Gemini contextual analysis.
 
-**Robust mode** uses four Gemini-powered AI agents that send real HTTP requests to a target URL. If the target is on localhost, a WebSocket reverse tunnel proxies requests through the `vibecheck connect` client — no ngrok or third-party tunnel needed.
+**Robust mode** uses four Gemini-powered AI agents that send real HTTP requests to any reachable target URL — a deployed site, a Cloudflare Tunnel, ngrok, or a local app exposed through the built-in `vibecheck connect` WebSocket tunnel.
 
 ---
 
@@ -162,8 +162,8 @@ All endpoints are versioned under `/v1`. The API returns JSON and accepts JSON r
 | `mode` | `"lightweight"` \| `"robust"` | yes | — | |
 | `repo_url` | string | conditional | — | Required for lightweight if `files` is not provided |
 | `files` | `[{path, content}]` | conditional | — | Required for lightweight if `repo_url` is not provided |
-| `target_url` | string | conditional | — | Required for robust |
-| `tunnel_session_id` | string | no | — | Optional for robust (use when target is on localhost) |
+| `target_url` | string | conditional | — | Required for robust — any reachable URL (deployed site, Cloudflare Tunnel, ngrok, etc.) |
+| `tunnel_session_id` | string | no | — | Optional — only needed when using the built-in VibeCheck tunnel client |
 | `agents` | string[] | no | `["recon","auth","injection","config"]` | Robust only |
 | `depth` | `"quick"` \| `"standard"` \| `"deep"` | no | `"standard"` | Controls agent step limits |
 | `idempotency_key` | string | no | — | Prevents duplicate scans |
@@ -426,7 +426,104 @@ Robust mode deploys four AI agents powered by Gemini function calling. Each agen
 
 Agent step limits scale with depth: **quick** (5), **standard** (15), **deep** (30).
 
-Agents run sequentially against the target URL. If the target is only on localhost, use the [tunnel client](#tunnel-client) to make it reachable.
+Agents run sequentially against whatever URL you provide as `target_url`. The only requirement is that the URL is **reachable from the VibeCheck API server** over HTTP/HTTPS. This means any method you already use to expose a port will work — a deployed website, a cloud preview URL, a tunnel service, or the built-in VibeCheck tunnel client.
+
+---
+
+## Exposing Your App for Robust Scanning
+
+Robust mode needs a URL that the VibeCheck API can reach over HTTP. Here are several ways to make a local app scannable, from simplest to most flexible:
+
+### Option 1: Already deployed? Just use the URL
+
+If your app is deployed anywhere with a public URL, pass it directly — no tunnel needed:
+
+```bash
+curl -X POST "https://vibecheck-test-1beb2409.aedify.ai/v1/assessments" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "mode": "robust",
+    "target_url": "https://my-app.vercel.app",
+    "agents": ["recon", "auth", "injection", "config"],
+    "depth": "standard"
+  }'
+```
+
+This works with any hosting provider: Vercel, Netlify, Railway, Render, Fly.io, AWS, Heroku, a VPS — anything with a URL.
+
+### Option 2: Cloudflare Tunnel (recommended for local apps)
+
+[Cloudflare Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/) gives your local app a public `*.trycloudflare.com` URL with zero configuration:
+
+```bash
+# Install cloudflared: https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/downloads/
+# Then expose your local port:
+cloudflared tunnel --url http://localhost:3000
+```
+
+Cloudflared prints a URL like `https://random-words.trycloudflare.com`. Use that as your `target_url`:
+
+```bash
+curl -X POST "https://vibecheck-test-1beb2409.aedify.ai/v1/assessments" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "mode": "robust",
+    "target_url": "https://random-words.trycloudflare.com",
+    "agents": ["recon", "auth", "injection", "config"],
+    "depth": "standard"
+  }'
+```
+
+### Option 3: ngrok
+
+[ngrok](https://ngrok.com/) is another popular option for exposing local ports:
+
+```bash
+# Install ngrok: https://ngrok.com/download
+ngrok http 3000
+```
+
+ngrok prints a forwarding URL like `https://abc123.ngrok-free.app`. Use that as your `target_url`.
+
+### Option 4: VS Code / Cursor port forwarding
+
+Both VS Code and Cursor have built-in port forwarding. Open the **Ports** panel (Ctrl+Shift+P → "Forward a Port"), forward your local port, and use the generated URL as `target_url`.
+
+### Option 5: Built-in VibeCheck tunnel client
+
+If you don't have any of the above set up, VibeCheck includes its own WebSocket-based reverse tunnel:
+
+```bash
+pip install vibecheck-client
+vibecheck connect 3000 --server wss://vibecheck-test-1beb2409.aedify.ai/v1/tunnel
+# Output: Tunnel session: tun_abc123...
+```
+
+Then reference the tunnel session in your assessment:
+
+```bash
+curl -X POST "https://vibecheck-test-1beb2409.aedify.ai/v1/assessments" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "mode": "robust",
+    "target_url": "http://localhost:3000",
+    "tunnel_session_id": "tun_abc123...",
+    "agents": ["recon", "auth", "injection", "config"],
+    "depth": "standard"
+  }'
+```
+
+### Summary
+
+| Method | Setup needed | Best for |
+|---|---|---|
+| Direct URL | None | Already-deployed apps |
+| Cloudflare Tunnel | Install `cloudflared` | Quick local exposure, no account needed |
+| ngrok | Install `ngrok` + free account | Popular, well-documented |
+| VS Code / Cursor ports | None (built-in) | IDE-native workflow |
+| VibeCheck tunnel | `pip install vibecheck-client` | Zero external dependencies |
+
+All methods produce a URL that works as `target_url`. The VibeCheck tunnel is the only one that uses `tunnel_session_id` — all others just use the public URL directly.
 
 ---
 
@@ -471,7 +568,9 @@ curl "https://vibecheck-test-1beb2409.aedify.ai/v1/assessments/asm_ID/findings?q
 curl "https://vibecheck-test-1beb2409.aedify.ai/v1/assessments/asm_ID/findings?category=xss&agent=pattern_scanner"
 ```
 
-### Robust scan against a public URL
+### Robust scan (any reachable URL)
+
+Pass any URL the API can reach — a deployed site, a Cloudflare Tunnel URL, ngrok, etc. See [Exposing Your App for Robust Scanning](#exposing-your-app-for-robust-scanning) for all options.
 
 ```bash
 curl -X POST "https://vibecheck-test-1beb2409.aedify.ai/v1/assessments" \
@@ -484,27 +583,10 @@ curl -X POST "https://vibecheck-test-1beb2409.aedify.ai/v1/assessments" \
   }'
 ```
 
-### Robust scan against localhost (via tunnel)
+### View agent logs after a robust scan
 
 ```bash
-# Terminal 1: Start your app
-python app.py  # listening on port 3000
-
-# Terminal 2: Open the tunnel
-pip install vibecheck-client
-vibecheck connect 3000 --server wss://vibecheck-test-1beb2409.aedify.ai/v1/tunnel
-# Output: Tunnel session: tun_abc123...
-
-# Terminal 3: Start the scan
-curl -X POST "https://vibecheck-test-1beb2409.aedify.ai/v1/assessments" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "mode": "robust",
-    "target_url": "http://localhost:3000",
-    "tunnel_session_id": "tun_abc123...",
-    "agents": ["recon", "auth", "injection", "config"],
-    "depth": "standard"
-  }'
+curl "https://vibecheck-test-1beb2409.aedify.ai/v1/assessments/asm_ID/logs"
 ```
 
 ### Analyze a finding with AI
