@@ -1416,6 +1416,10 @@ pre,
     .arch-arrow {
         transform: rotate(90deg);
     }
+
+    .workflow-grid {
+        grid-template-columns: 1fr;
+    }
 }
 
 @media (max-width: 600px) {
@@ -1541,7 +1545,7 @@ pre,
 /* ── Workflow cards ── */
 .workflow-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    grid-template-columns: repeat(3, 1fr);
     gap: 14px;
     margin: 16px 0;
 }
@@ -1552,6 +1556,10 @@ pre,
     background: var(--panel);
     border: 1px solid var(--panel-border);
     transition: box-shadow 200ms ease;
+}
+
+.workflow-card-wide {
+    grid-column: 1 / -1;
 }
 
 .workflow-card:hover {
@@ -1577,6 +1585,16 @@ pre,
     color: var(--primary);
     text-decoration: none;
     font-weight: 600;
+}
+
+.workflow-card .code-block-wrapper {
+    margin-top: 10px;
+}
+
+.workflow-card .code-block {
+    font-size: 12px;
+    white-space: pre;
+    overflow-x: auto;
 }
 
 /* ── Info note boxes ── */
