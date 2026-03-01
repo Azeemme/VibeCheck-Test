@@ -259,8 +259,41 @@
         </div>
         <div class="workflow-card">
           <h4>🖥️ IDE Integration (MCP)</h4>
-          <p>Install the MCP server, configure in Cursor/VS Code, then use VibeCheck tools directly from your editor
-            chat to scan repos and analyze findings inline.</p>
+          <p>Add this to your <code>mcp.json</code> in Cursor or VS Code to use VibeCheck tools directly from your
+            editor chat:</p>
+          <div class="code-block-wrapper"><button class="copy-btn" onclick="copyCodeBlock(this)">Copy</button>
+            <div class="code-block">{
+              "mcpServers": {
+              "vibecheck-remote": {
+              "url": "https://vibecheck1-mcp-server-6258d84e.aedify.ai/mcp"
+              }
+              }
+              }</div>
+          </div>
+          <p style="margin-top:12px">Then add a <code>.cursorrules</code> file to your project root so Cursor uses
+            VibeCheck automatically:</p>
+          <div class="code-block-wrapper"><button class="copy-btn" onclick="copyCodeBlock(this)">Copy</button>
+            <div class="code-block"># Security Scanning with VibeCheck
+
+              You have access to the VibeCheck MCP server for AI-powered security scanning.
+
+              ## When to use VibeCheck
+              - Before committing code: run a lightweight scan on the current repo
+              - When reviewing PRs: scan changed files for vulnerabilities
+              - When the user asks about security: scan and analyze findings
+              - After adding dependencies: check for known vulnerabilities
+
+              ## How to use
+              1. Use the `create_assessment` tool with mode "lightweight" and the repo URL or file contents
+              2. Poll the assessment status until complete
+              3. Use `list_findings` to see all discovered vulnerabilities
+              4. Use `analyze_finding` on critical/high findings for AI-powered remediation advice
+
+              ## Guidelines
+              - Always scan before saying code is "secure" or "ready for production"
+              - Flag critical and high severity findings to the user immediately
+              - Suggest specific fixes based on the remediation advice from findings</div>
+          </div>
         </div>
       </div>
     </section>
