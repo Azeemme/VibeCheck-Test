@@ -1,717 +1,1178 @@
 <!doctype html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>VibeCheck API Documentation</title>
-  <meta name="description" content="Interactive API documentation for VibeCheck — AI-powered security scanning API with 18 endpoints, REST + WebSocket, zero auth."/>
-  <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-  <link rel="stylesheet" href="./docs.css"/>
+  <meta name="description"
+    content="Interactive API documentation for VibeCheck — AI-powered security scanning API with 18 endpoints, REST + WebSocket, zero auth." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="./docs.css" />
 </head>
+
 <body>
-<div class="bg-blur bg-blur-1"></div>
-<div class="bg-blur bg-blur-2"></div>
+  <div class="bg-blur bg-blur-1"></div>
+  <div class="bg-blur bg-blur-2"></div>
 
-<!-- ═══ TOP BAR ═══ -->
-<header class="doc-topbar">
-  <span class="logo">VibeCheck</span>
-  <span class="label">API Documentation</span>
-  <div class="base-url-box">
-    <label for="apiBaseUrl">Base URL</label>
-    <input id="apiBaseUrl" type="text" value="https://vibecheck-8a86536e.aedify.ai"/>
-  </div>
-  <nav>
-    <a href="/">Dashboard</a>
-    <a id="swaggerLink" href="https://vibecheck-8a86536e.aedify.ai/docs" target="_blank">Swagger</a>
-    <a id="redocLink" href="https://vibecheck-8a86536e.aedify.ai/redoc" target="_blank">ReDoc</a>
-  </nav>
-</header>
-
-<!-- ═══ SIDEBAR ═══ -->
-<aside class="doc-sidebar">
-  <div class="sidebar-group">
-    <span class="sidebar-group-title">Overview</span>
-    <a class="sidebar-link" href="#introduction">Introduction</a>
-    <a class="sidebar-link" href="#authentication">Authentication</a>
-    <a class="sidebar-link" href="#errors">Error Handling</a>
-    <a class="sidebar-link" href="#pagination">Pagination</a>
-  </div>
-  <div class="sidebar-group">
-    <span class="sidebar-group-title">Health</span>
-    <a class="sidebar-link" href="#ep-health"><span class="method-badge method-get">GET</span><span class="sidebar-path">/v1/health</span></a>
-  </div>
-  <div class="sidebar-group">
-    <span class="sidebar-group-title">Assessments</span>
-    <a class="sidebar-link" href="#ep-create-assessment"><span class="method-badge method-post">POST</span><span class="sidebar-path">/v1/assessments</span></a>
-    <a class="sidebar-link" href="#ep-list-assessments"><span class="method-badge method-get">GET</span><span class="sidebar-path">/v1/assessments</span></a>
-    <a class="sidebar-link" href="#ep-get-assessment"><span class="method-badge method-get">GET</span><span class="sidebar-path">/v1/assessments/{id}</span></a>
-    <a class="sidebar-link" href="#ep-delete-assessment"><span class="method-badge method-delete">DEL</span><span class="sidebar-path">/v1/assessments/{id}</span></a>
-    <a class="sidebar-link" href="#ep-rerun-assessment"><span class="method-badge method-post">POST</span><span class="sidebar-path">…/{id}/rerun</span></a>
-    <a class="sidebar-link" href="#ep-assessment-ws"><span class="method-badge method-ws">WS</span><span class="sidebar-path">…/{id}/ws</span></a>
-  </div>
-  <div class="sidebar-group">
-    <span class="sidebar-group-title">Findings</span>
-    <a class="sidebar-link" href="#ep-list-findings"><span class="method-badge method-get">GET</span><span class="sidebar-path">…/{id}/findings</span></a>
-    <a class="sidebar-link" href="#ep-get-finding"><span class="method-badge method-get">GET</span><span class="sidebar-path">…/findings/{fid}</span></a>
-    <a class="sidebar-link" href="#ep-analyze-finding"><span class="method-badge method-post">POST</span><span class="sidebar-path">…/{fid}/analyze</span></a>
-  </div>
-  <div class="sidebar-group">
-    <span class="sidebar-group-title">Agent Logs</span>
-    <a class="sidebar-link" href="#ep-agent-logs"><span class="method-badge method-get">GET</span><span class="sidebar-path">…/{id}/logs</span></a>
-  </div>
-  <div class="sidebar-group">
-    <span class="sidebar-group-title">Agents</span>
-    <a class="sidebar-link" href="#ep-list-agents"><span class="method-badge method-get">GET</span><span class="sidebar-path">/v1/agents</span></a>
-    <a class="sidebar-link" href="#ep-get-agent"><span class="method-badge method-get">GET</span><span class="sidebar-path">/v1/agents/{name}</span></a>
-  </div>
-  <div class="sidebar-group">
-    <span class="sidebar-group-title">Tunnel</span>
-    <a class="sidebar-link" href="#ep-tunnel-ws"><span class="method-badge method-ws">WS</span><span class="sidebar-path">/v1/tunnel</span></a>
-    <a class="sidebar-link" href="#ep-tunnel-sessions"><span class="method-badge method-get">GET</span><span class="sidebar-path">…/tunnel/sessions</span></a>
-    <a class="sidebar-link" href="#ep-tunnel-session"><span class="method-badge method-get">GET</span><span class="sidebar-path">…/sessions/{id}</span></a>
-  </div>
-  <div class="sidebar-group">
-    <span class="sidebar-group-title">Memory</span>
-    <a class="sidebar-link" href="#ep-memory-status"><span class="method-badge method-get">GET</span><span class="sidebar-path">/v1/memory/status</span></a>
-    <a class="sidebar-link" href="#ep-memory-search"><span class="method-badge method-get">GET</span><span class="sidebar-path">/v1/memory/search</span></a>
-  </div>
-</aside>
-
-<!-- ═══ MAIN CONTENT ═══ -->
-<main class="doc-content">
-
-<!-- ── Introduction ── -->
-<section class="doc-section" id="introduction">
-  <h2>Introduction</h2>
-  <p><strong>VibeCheck</strong> is a public HTTP API that security-scans vibe-coded apps in two modes — <strong>lightweight</strong> static analysis of source code and <strong>robust</strong> AI-powered red-teaming of running applications through a built-in WebSocket reverse tunnel.</p>
-  <p><strong>Lightweight mode</strong> analyzes source code via five static scanners (dependency, pattern, secret, config, and Gemini contextual). <strong>Robust mode</strong> deploys four Gemini-powered AI agents (recon, auth, injection, config) that actively probe a live target.</p>
-  <h3>Base URL</h3>
-  <div class="code-block-wrapper"><button class="copy-btn" onclick="copyCodeBlock(this)">Copy</button><div class="code-block">https://vibecheck-8a86536e.aedify.ai</div></div>
-  <div class="badge-row">
-    <span class="badge-pill">18 Endpoints</span>
-    <span class="badge-pill">REST + WebSocket</span>
-    <span class="badge-pill">Zero Auth</span>
-    <span class="badge-pill">Gemini AI Agents</span>
-    <span class="badge-pill">OpenAPI /docs</span>
-  </div>
-</section>
-
-<!-- ── Authentication ── -->
-<section class="doc-section" id="authentication">
-  <h2>Authentication</h2>
-  <p>VibeCheck requires <strong>no authentication</strong> (hackathon MVP). All endpoints are public. Every response includes an <code>X-Request-ID</code> header for request tracing.</p>
-</section>
-
-<!-- ── Error Handling ── -->
-<section class="doc-section" id="errors">
-  <h2>Error Handling</h2>
-  <p>All errors return a consistent envelope:</p>
-  <div class="code-block-wrapper"><button class="copy-btn" onclick="copyCodeBlock(this)">Copy</button><div class="code-block">{
-  "error": {
-    "type": "not_found",
-    "message": "Assessment 'asm_abc123' not found.",
-    "code": "ASSESSMENT_NOT_FOUND",
-    "param": null
-  }
-}</div></div>
-  <table class="doc-table">
-    <thead><tr><th>HTTP</th><th>Type</th><th>Codes</th></tr></thead>
-    <tbody>
-      <tr><td><code>400</code></td><td>validation_error, tunnel_error</td><td>INVALID_MODE, MISSING_REPO_URL, MISSING_TUNNEL_SESSION, TUNNEL_NOT_CONNECTED, INVALID_AGENT, LOGS_NOT_AVAILABLE</td></tr>
-      <tr><td><code>404</code></td><td>not_found</td><td>ASSESSMENT_NOT_FOUND, FINDING_NOT_FOUND, AGENT_NOT_FOUND, TUNNELSESSION_NOT_FOUND</td></tr>
-      <tr><td><code>409</code></td><td>conflict</td><td>ASSESSMENT_IN_PROGRESS, DUPLICATE_IDEMPOTENCY_KEY</td></tr>
-      <tr><td><code>422</code></td><td>validation_error</td><td>VALIDATION_ERROR (Pydantic)</td></tr>
-      <tr><td><code>502</code></td><td>external_error, tunnel_error</td><td>CLONE_FAILED, TARGET_UNREACHABLE</td></tr>
-    </tbody>
-  </table>
-</section>
-
-<!-- ── Pagination ── -->
-<section class="doc-section" id="pagination">
-  <h2>Pagination</h2>
-  <p>All list endpoints return a paginated response:</p>
-  <div class="code-block-wrapper"><button class="copy-btn" onclick="copyCodeBlock(this)">Copy</button><div class="code-block">{
-  "data": [ ... ],
-  "pagination": {
-    "page": 1,
-    "per_page": 20,
-    "total": 42,
-    "total_pages": 3
-  }
-}</div></div>
-  <p>Standard query parameters: <code>page</code> (int, default 1) and <code>per_page</code> (int, default 20, max 100).</p>
-</section>
-
-<!-- ═══════════════════════════════════════════ -->
-<!--           ENDPOINT SECTIONS                -->
-<!-- ═══════════════════════════════════════════ -->
-
-<h2 class="section-group-title">Health</h2>
-
-<!-- ── 1. GET /v1/health ── -->
-<section class="doc-section" id="ep-health">
-<div class="endpoint-card">
-  <div class="endpoint-header" onclick="toggleCard(this)">
-    <span class="method-badge method-get">GET</span>
-    <span class="ep-path">/v1/health</span>
-    <span class="ep-title">Health Check</span>
-    <svg class="chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"/></svg>
-  </div>
-  <div class="endpoint-body"><div class="endpoint-body-inner">
-    <p>Returns API health status, version, active tunnel count, and agent availability.</p>
-    <h4>Parameters</h4><p>None</p>
-    <h4>Example Response</h4>
-    <div class="code-block-wrapper"><button class="copy-btn" onclick="copyCodeBlock(this)">Copy</button><div class="code-block">{
-  "status": "healthy",
-  "version": "1.0.0",
-  "active_tunnels": 0,
-  "agents_available": true
-}</div></div>
-    <h4>cURL</h4>
-    <div class="code-block-wrapper"><button class="copy-btn" onclick="copyCodeBlock(this)">Copy</button><div class="code-block">curl https://vibecheck-8a86536e.aedify.ai/v1/health</div></div>
-    <div class="try-it" data-method="GET" data-path="/v1/health">
-      <h4>🧪 Try It</h4>
-      <button class="try-send-btn" onclick="tryEndpoint(this)">Send Request</button>
-      <div class="try-result"></div>
+  <!-- ═══ TOP BAR ═══ -->
+  <header class="doc-topbar">
+    <span class="logo">VibeCheck</span>
+    <span class="label">API Documentation</span>
+    <div class="base-url-box">
+      <label for="apiBaseUrl">Base URL</label>
+      <input id="apiBaseUrl" type="text" value="https://vibecheck-8a86536e.aedify.ai" />
     </div>
-  </div></div>
-</div>
-</section>
+    <nav>
+      <a href="/">Dashboard</a>
+      <a id="swaggerLink" href="https://vibecheck-8a86536e.aedify.ai/docs" target="_blank">Swagger</a>
+      <a id="redocLink" href="https://vibecheck-8a86536e.aedify.ai/redoc" target="_blank">ReDoc</a>
+    </nav>
+  </header>
 
-<h2 class="section-group-title">Assessments</h2>
+  <!-- ═══ SIDEBAR ═══ -->
+  <aside class="doc-sidebar">
+    <div class="sidebar-group">
+      <span class="sidebar-group-title">Overview</span>
+      <a class="sidebar-link" href="#introduction">Introduction</a>
+      <a class="sidebar-link" href="#quickstart">Quick Start</a>
+      <a class="sidebar-link" href="#authentication">Authentication</a>
+      <a class="sidebar-link" href="#errors">Error Handling</a>
+      <a class="sidebar-link" href="#pagination">Pagination</a>
+    </div>
+    <div class="sidebar-group">
+      <span class="sidebar-group-title">Health</span>
+      <a class="sidebar-link" href="#ep-health"><span class="method-badge method-get">GET</span><span
+          class="sidebar-path">/v1/health</span></a>
+    </div>
+    <div class="sidebar-group">
+      <span class="sidebar-group-title">Assessments</span>
+      <a class="sidebar-link" href="#ep-create-assessment"><span class="method-badge method-post">POST</span><span
+          class="sidebar-path">/v1/assessments</span></a>
+      <a class="sidebar-link" href="#ep-list-assessments"><span class="method-badge method-get">GET</span><span
+          class="sidebar-path">/v1/assessments</span></a>
+      <a class="sidebar-link" href="#ep-get-assessment"><span class="method-badge method-get">GET</span><span
+          class="sidebar-path">/v1/assessments/{id}</span></a>
+      <a class="sidebar-link" href="#ep-delete-assessment"><span class="method-badge method-delete">DEL</span><span
+          class="sidebar-path">/v1/assessments/{id}</span></a>
+      <a class="sidebar-link" href="#ep-rerun-assessment"><span class="method-badge method-post">POST</span><span
+          class="sidebar-path">…/{id}/rerun</span></a>
+      <a class="sidebar-link" href="#ep-assessment-ws"><span class="method-badge method-ws">WS</span><span
+          class="sidebar-path">…/{id}/ws</span></a>
+    </div>
+    <div class="sidebar-group">
+      <span class="sidebar-group-title">Findings</span>
+      <a class="sidebar-link" href="#ep-list-findings"><span class="method-badge method-get">GET</span><span
+          class="sidebar-path">…/{id}/findings</span></a>
+      <a class="sidebar-link" href="#ep-get-finding"><span class="method-badge method-get">GET</span><span
+          class="sidebar-path">…/findings/{fid}</span></a>
+      <a class="sidebar-link" href="#ep-analyze-finding"><span class="method-badge method-post">POST</span><span
+          class="sidebar-path">…/{fid}/analyze</span></a>
+    </div>
+    <div class="sidebar-group">
+      <span class="sidebar-group-title">Agent Logs</span>
+      <a class="sidebar-link" href="#ep-agent-logs"><span class="method-badge method-get">GET</span><span
+          class="sidebar-path">…/{id}/logs</span></a>
+    </div>
+    <div class="sidebar-group">
+      <span class="sidebar-group-title">Agents</span>
+      <a class="sidebar-link" href="#ep-list-agents"><span class="method-badge method-get">GET</span><span
+          class="sidebar-path">/v1/agents</span></a>
+      <a class="sidebar-link" href="#ep-get-agent"><span class="method-badge method-get">GET</span><span
+          class="sidebar-path">/v1/agents/{name}</span></a>
+    </div>
+    <div class="sidebar-group">
+      <span class="sidebar-group-title">Tunnel</span>
+      <a class="sidebar-link" href="#ep-tunnel-ws"><span class="method-badge method-ws">WS</span><span
+          class="sidebar-path">/v1/tunnel</span></a>
+      <a class="sidebar-link" href="#ep-tunnel-sessions"><span class="method-badge method-get">GET</span><span
+          class="sidebar-path">…/tunnel/sessions</span></a>
+      <a class="sidebar-link" href="#ep-tunnel-session"><span class="method-badge method-get">GET</span><span
+          class="sidebar-path">…/sessions/{id}</span></a>
+    </div>
+    <div class="sidebar-group">
+      <span class="sidebar-group-title">Memory</span>
+      <a class="sidebar-link" href="#ep-memory-status"><span class="method-badge method-get">GET</span><span
+          class="sidebar-path">/v1/memory/status</span></a>
+      <a class="sidebar-link" href="#ep-memory-search"><span class="method-badge method-get">GET</span><span
+          class="sidebar-path">/v1/memory/search</span></a>
+    </div>
+  </aside>
 
-<!-- ── 2. POST /v1/assessments ── -->
-<section class="doc-section" id="ep-create-assessment">
-<div class="endpoint-card">
-  <div class="endpoint-header" onclick="toggleCard(this)">
-    <span class="method-badge method-post">POST</span>
-    <span class="ep-path">/v1/assessments</span>
-    <span class="ep-title">Create Assessment</span>
-    <svg class="chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"/></svg>
-  </div>
-  <div class="endpoint-body"><div class="endpoint-body-inner">
-    <p>Create a security assessment. Returns <code>202 Accepted</code>. The scan runs in the background.</p>
-    <h4>Body Parameters</h4>
-    <table class="doc-table">
-      <thead><tr><th>Param</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
-      <tbody>
-        <tr><td><code>mode</code></td><td>string</td><td>Yes</td><td><code>"lightweight"</code> or <code>"robust"</code></td></tr>
-        <tr><td><code>repo_url</code></td><td>string</td><td>Conditional</td><td>GitHub URL. Required for lightweight if no <code>files</code>.</td></tr>
-        <tr><td><code>files</code></td><td>array</td><td>Conditional</td><td>Array of <code>{path, content}</code>. Required for lightweight if no <code>repo_url</code>.</td></tr>
-        <tr><td><code>target_url</code></td><td>string</td><td>Conditional</td><td>Any reachable URL. Required for robust.</td></tr>
-        <tr><td><code>tunnel_session_id</code></td><td>string</td><td>No</td><td>Only needed with built-in tunnel.</td></tr>
-        <tr><td><code>agents</code></td><td>string[]</td><td>No</td><td>Default: <code>["recon","auth","injection","config"]</code></td></tr>
-        <tr><td><code>depth</code></td><td>string</td><td>No</td><td><code>"quick"</code> (5), <code>"standard"</code> (15), <code>"deep"</code> (30)</td></tr>
-        <tr><td><code>idempotency_key</code></td><td>string</td><td>No</td><td>Prevents duplicate scans.</td></tr>
-      </tbody>
-    </table>
-    <h4>Example: Lightweight with repo_url</h4>
-    <div class="code-block-wrapper"><button class="copy-btn" onclick="copyCodeBlock(this)">Copy</button><div class="code-block">curl -X POST https://vibecheck-8a86536e.aedify.ai/v1/assessments \
-  -H "Content-Type: application/json" \
-  -d '{"mode": "lightweight", "repo_url": "https://github.com/user/repo"}'</div></div>
-    <h4>Example: Lightweight with inline files</h4>
-    <div class="code-block-wrapper"><button class="copy-btn" onclick="copyCodeBlock(this)">Copy</button><div class="code-block">{
-  "mode": "lightweight",
-  "files": [{
-    "path": "app.py",
-    "content": "import os\nJWT_SECRET = \"supersecret123\"\ndb.execute(f\"SELECT * FROM users WHERE id = {id}\")\nos.system(\"rm -rf \" + user_input)\napp.run(debug=True)"
-  }]
-}</div></div>
-    <h4>Example: Robust with target_url</h4>
-    <div class="code-block-wrapper"><button class="copy-btn" onclick="copyCodeBlock(this)">Copy</button><div class="code-block">curl -X POST https://vibecheck-8a86536e.aedify.ai/v1/assessments \
-  -H "Content-Type: application/json" \
-  -d '{"mode": "robust", "target_url": "https://example.com", "depth": "standard"}'</div></div>
-    <div class="try-it" data-method="POST" data-path="/v1/assessments">
-      <h4>🧪 Try It</h4>
-      <div class="try-field"><label>Request Body (JSON)</label>
-        <textarea class="try-body">{"mode": "lightweight", "files": [{"path": "app.py", "content": "import os\nJWT_SECRET = \"supersecret123\"\ndb.execute(f\"SELECT * FROM users WHERE id = {id}\")\nos.system(\"rm -rf \" + user_input)\napp.run(debug=True)"}]}</textarea>
+  <!-- ═══ MAIN CONTENT ═══ -->
+  <main class="doc-content">
+
+    <!-- ── Introduction ── -->
+    <section class="doc-section" id="introduction">
+      <h2>Introduction</h2>
+      <p><strong>VibeCheck</strong> is a public HTTP API that security-scans vibe-coded apps in two modes —
+        <strong>lightweight</strong> static analysis of source code and <strong>robust</strong> AI-powered red-teaming
+        of running applications through a built-in WebSocket reverse tunnel.</p>
+      <p><strong>Lightweight mode</strong> analyzes source code via five static scanners (dependency, pattern, secret,
+        config, and Gemini contextual). <strong>Robust mode</strong> deploys four Gemini-powered AI agents (recon, auth,
+        injection, config) that actively probe a live target.</p>
+      <h3>Base URL</h3>
+      <div class="code-block-wrapper"><button class="copy-btn" onclick="copyCodeBlock(this)">Copy</button>
+        <div class="code-block">https://vibecheck-8a86536e.aedify.ai</div>
       </div>
-      <button class="try-send-btn" onclick="tryEndpoint(this)">Send Request</button>
-      <div class="try-result"></div>
-    </div>
-  </div></div>
-</div>
-</section>
-
-<!-- ── 3. GET /v1/assessments ── -->
-<section class="doc-section" id="ep-list-assessments">
-<div class="endpoint-card">
-  <div class="endpoint-header" onclick="toggleCard(this)">
-    <span class="method-badge method-get">GET</span>
-    <span class="ep-path">/v1/assessments</span>
-    <span class="ep-title">List Assessments</span>
-    <svg class="chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"/></svg>
-  </div>
-  <div class="endpoint-body"><div class="endpoint-body-inner">
-    <p>List assessments with pagination, filtering, and sorting.</p>
-    <h4>Query Parameters</h4>
-    <table class="doc-table">
-      <thead><tr><th>Param</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
-      <tbody>
-        <tr><td><code>page</code></td><td>int</td><td>1</td><td>Page number</td></tr>
-        <tr><td><code>per_page</code></td><td>int</td><td>20</td><td>Items per page (max 100)</td></tr>
-        <tr><td><code>mode</code></td><td>string</td><td>—</td><td>Filter: <code>lightweight</code> or <code>robust</code></td></tr>
-        <tr><td><code>status</code></td><td>string</td><td>—</td><td>Filter: queued, cloning, analyzing, scanning, complete, failed</td></tr>
-        <tr><td><code>sort</code></td><td>string</td><td>-created_at</td><td>Sort field (prefix <code>-</code> for desc)</td></tr>
-      </tbody>
-    </table>
-    <div class="try-it" data-method="GET" data-path="/v1/assessments">
-      <h4>🧪 Try It</h4>
-      <div class="try-field"><label>per_page</label><input class="try-param" data-key="per_page" type="number" placeholder="20"/></div>
-      <div class="try-field"><label>mode</label><select class="try-param" data-key="mode"><option value="">All</option><option value="lightweight">lightweight</option><option value="robust">robust</option></select></div>
-      <div class="try-field"><label>status</label><select class="try-param" data-key="status"><option value="">All</option><option value="queued">queued</option><option value="cloning">cloning</option><option value="analyzing">analyzing</option><option value="scanning">scanning</option><option value="complete">complete</option><option value="failed">failed</option></select></div>
-      <button class="try-send-btn" onclick="tryEndpoint(this)">Send Request</button>
-      <div class="try-result"></div>
-    </div>
-  </div></div>
-</div>
-</section>
-
-<!-- ── 4. GET /v1/assessments/{id} ── -->
-<section class="doc-section" id="ep-get-assessment">
-<div class="endpoint-card">
-  <div class="endpoint-header" onclick="toggleCard(this)">
-    <span class="method-badge method-get">GET</span>
-    <span class="ep-path">/v1/assessments/{id}</span>
-    <span class="ep-title">Get Assessment</span>
-    <svg class="chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"/></svg>
-  </div>
-  <div class="endpoint-body"><div class="endpoint-body-inner">
-    <p>Get full assessment detail. Status progresses: <code>queued</code> → <code>cloning</code> → <code>analyzing</code> → <code>scanning</code> → <code>complete</code> | <code>failed</code>.</p>
-    <h4>Path Parameters</h4>
-    <table class="doc-table"><thead><tr><th>Param</th><th>Type</th><th>Required</th></tr></thead>
-      <tbody><tr><td><code>id</code></td><td>string</td><td>Yes</td></tr></tbody>
-    </table>
-    <div class="try-it" data-method="GET" data-path="/v1/assessments/{id}">
-      <h4>🧪 Try It</h4>
-      <div class="try-field"><label>Assessment ID</label><input class="try-pathparam" data-key="id" type="text" placeholder="asm_xxxxxxxxxxxx"/></div>
-      <button class="try-send-btn" onclick="tryEndpoint(this)">Send Request</button>
-      <div class="try-result"></div>
-    </div>
-  </div></div>
-</div>
-</section>
-
-<!-- ── 5. DELETE /v1/assessments/{id} ── -->
-<section class="doc-section" id="ep-delete-assessment">
-<div class="endpoint-card">
-  <div class="endpoint-header" onclick="toggleCard(this)">
-    <span class="method-badge method-delete">DELETE</span>
-    <span class="ep-path">/v1/assessments/{id}</span>
-    <span class="ep-title">Delete Assessment</span>
-    <svg class="chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"/></svg>
-  </div>
-  <div class="endpoint-body"><div class="endpoint-body-inner">
-    <p>Delete assessment and all associated findings and logs. Returns <code>204 No Content</code>.</p>
-    <div class="try-it" data-method="DELETE" data-path="/v1/assessments/{id}">
-      <h4>🧪 Try It</h4>
-      <div class="try-field"><label>Assessment ID</label><input class="try-pathparam" data-key="id" type="text" placeholder="asm_xxxxxxxxxxxx"/></div>
-      <button class="try-send-btn" onclick="tryEndpoint(this)">Send Request</button>
-      <div class="try-result"></div>
-    </div>
-  </div></div>
-</div>
-</section>
-
-<!-- ── 6. POST /v1/assessments/{id}/rerun ── -->
-<section class="doc-section" id="ep-rerun-assessment">
-<div class="endpoint-card">
-  <div class="endpoint-header" onclick="toggleCard(this)">
-    <span class="method-badge method-post">POST</span>
-    <span class="ep-path">/v1/assessments/{id}/rerun</span>
-    <span class="ep-title">Re-run Assessment</span>
-    <svg class="chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"/></svg>
-  </div>
-  <div class="endpoint-body"><div class="endpoint-body-inner">
-    <p>Re-run a completed or failed assessment. Clears existing findings and logs, resets status to <code>queued</code>. Returns <code>409</code> if the assessment is still in progress.</p>
-    <div class="try-it" data-method="POST" data-path="/v1/assessments/{id}/rerun">
-      <h4>🧪 Try It</h4>
-      <div class="try-field"><label>Assessment ID</label><input class="try-pathparam" data-key="id" type="text" placeholder="asm_xxxxxxxxxxxx"/></div>
-      <button class="try-send-btn" onclick="tryEndpoint(this)">Send Request</button>
-      <div class="try-result"></div>
-    </div>
-  </div></div>
-</div>
-</section>
-
-<!-- ── 7. WebSocket /v1/assessments/{id}/ws ── -->
-<section class="doc-section" id="ep-assessment-ws">
-<div class="endpoint-card">
-  <div class="endpoint-header" onclick="toggleCard(this)">
-    <span class="method-badge method-ws">WS</span>
-    <span class="ep-path">/v1/assessments/{id}/ws</span>
-    <span class="ep-title">Real-time Status Stream</span>
-    <svg class="chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"/></svg>
-  </div>
-  <div class="endpoint-body"><div class="endpoint-body-inner">
-    <p>WebSocket endpoint for real-time assessment status updates. Server sends <code>assessment_update</code> on status changes and <code>assessment_terminal</code> on completion.</p>
-    <div class="ws-note"><strong>WebSocket</strong> — No Try It panel. Connect using a WebSocket client.</div>
-    <h4>Server Message: Status Update</h4>
-    <div class="code-block-wrapper"><button class="copy-btn" onclick="copyCodeBlock(this)">Copy</button><div class="code-block">{
-  "type": "assessment_update",
-  "assessment": {
-    "id": "asm_abc123",
-    "status": "scanning",
-    "finding_counts": {"critical": 0, "high": 1, "medium": 2, "low": 0, "info": 0, "total": 3}
-  }
-}</div></div>
-    <h4>Server Message: Terminal</h4>
-    <div class="code-block-wrapper"><button class="copy-btn" onclick="copyCodeBlock(this)">Copy</button><div class="code-block">{
-  "type": "assessment_terminal",
-  "assessment": {
-    "id": "asm_abc123",
-    "status": "complete",
-    "finding_counts": {"critical": 1, "high": 3, "medium": 5, "low": 2, "info": 1, "total": 12}
-  }
-}</div></div>
-  </div></div>
-</div>
-</section>
-
-<h2 class="section-group-title">Findings</h2>
-
-<!-- ── 8. GET /v1/assessments/{id}/findings ── -->
-<section class="doc-section" id="ep-list-findings">
-<div class="endpoint-card">
-  <div class="endpoint-header" onclick="toggleCard(this)">
-    <span class="method-badge method-get">GET</span>
-    <span class="ep-path">/v1/assessments/{id}/findings</span>
-    <span class="ep-title">List Findings</span>
-    <svg class="chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"/></svg>
-  </div>
-  <div class="endpoint-body"><div class="endpoint-body-inner">
-    <p>List findings for an assessment. Filterable, searchable, and paginated. Default sort uses domain ordering: critical → high → medium → low → info.</p>
-    <h4>Query Parameters</h4>
-    <table class="doc-table">
-      <thead><tr><th>Param</th><th>Type</th><th>Description</th></tr></thead>
-      <tbody>
-        <tr><td><code>page</code></td><td>int</td><td>Page number (default 1)</td></tr>
-        <tr><td><code>per_page</code></td><td>int</td><td>Items per page (default 20)</td></tr>
-        <tr><td><code>severity</code></td><td>string</td><td>critical, high, medium, low, info</td></tr>
-        <tr><td><code>category</code></td><td>string</td><td>e.g. sql_injection, xss, hardcoded_secret</td></tr>
-        <tr><td><code>agent</code></td><td>string</td><td>Filter by agent name</td></tr>
-        <tr><td><code>q</code></td><td>string</td><td>Text search across title + description</td></tr>
-        <tr><td><code>sort</code></td><td>string</td><td>Default <code>severity</code></td></tr>
-      </tbody>
-    </table>
-    <h4>Example Finding Object</h4>
-    <div class="code-block-wrapper"><button class="copy-btn" onclick="copyCodeBlock(this)">Copy</button><div class="code-block">{
-  "id": "fnd_abc123def456",
-  "assessment_id": "asm_abc123",
-  "severity": "critical",
-  "category": "sql_injection",
-  "title": "SQL Injection via string formatting",
-  "description": "User input directly interpolated into SQL query...",
-  "location": {"file": "app.py", "line": 3, "snippet": "db.execute(f\"SELECT...\")"},
-  "evidence": null,
-  "remediation": "Use parameterized queries instead of string formatting.",
-  "agent": "static_pattern",
-  "created_at": "2026-02-28T12:00:00Z"
-}</div></div>
-    <div class="try-it" data-method="GET" data-path="/v1/assessments/{id}/findings">
-      <h4>🧪 Try It</h4>
-      <div class="try-field"><label>Assessment ID</label><input class="try-pathparam" data-key="id" type="text" placeholder="asm_xxxxxxxxxxxx"/></div>
-      <div class="try-field"><label>severity</label><select class="try-param" data-key="severity"><option value="">All</option><option value="critical">critical</option><option value="high">high</option><option value="medium">medium</option><option value="low">low</option><option value="info">info</option></select></div>
-      <div class="try-field"><label>q (search)</label><input class="try-param" data-key="q" type="text" placeholder="Search text…"/></div>
-      <button class="try-send-btn" onclick="tryEndpoint(this)">Send Request</button>
-      <div class="try-result"></div>
-    </div>
-  </div></div>
-</div>
-</section>
-
-<!-- ── 9. GET /v1/assessments/{id}/findings/{finding_id} ── -->
-<section class="doc-section" id="ep-get-finding">
-<div class="endpoint-card">
-  <div class="endpoint-header" onclick="toggleCard(this)">
-    <span class="method-badge method-get">GET</span>
-    <span class="ep-path">/v1/assessments/{id}/findings/{finding_id}</span>
-    <span class="ep-title">Get Finding</span>
-    <svg class="chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"/></svg>
-  </div>
-  <div class="endpoint-body"><div class="endpoint-body-inner">
-    <p>Get a single finding with full detail.</p>
-    <div class="try-it" data-method="GET" data-path="/v1/assessments/{id}/findings/{finding_id}">
-      <h4>🧪 Try It</h4>
-      <div class="try-field"><label>Assessment ID</label><input class="try-pathparam" data-key="id" type="text" placeholder="asm_xxxxxxxxxxxx"/></div>
-      <div class="try-field"><label>Finding ID</label><input class="try-pathparam" data-key="finding_id" type="text" placeholder="fnd_xxxxxxxxxxxx"/></div>
-      <button class="try-send-btn" onclick="tryEndpoint(this)">Send Request</button>
-      <div class="try-result"></div>
-    </div>
-  </div></div>
-</div>
-</section>
-
-<!-- ── 10. POST /v1/assessments/{id}/findings/{finding_id}/analyze ── -->
-<section class="doc-section" id="ep-analyze-finding">
-<div class="endpoint-card">
-  <div class="endpoint-header" onclick="toggleCard(this)">
-    <span class="method-badge method-post">POST</span>
-    <span class="ep-path">/v1/assessments/{id}/findings/{finding_id}/analyze</span>
-    <span class="ep-title">Analyze Finding (AI)</span>
-    <svg class="chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"/></svg>
-  </div>
-  <div class="endpoint-body"><div class="endpoint-body-inner">
-    <p>Gemini AI-powered deep analysis of a finding. Returns summary, impact, root cause, mode-specific guidance, where to fix, action plan, and similar findings from Supermemory.</p>
-    <h4>Body (optional)</h4>
-    <div class="code-block-wrapper"><button class="copy-btn" onclick="copyCodeBlock(this)">Copy</button><div class="code-block">{"focus": "optional guidance string"}</div></div>
-    <h4>Response Shape</h4>
-    <div class="code-block-wrapper"><button class="copy-btn" onclick="copyCodeBlock(this)">Copy</button><div class="code-block">{
-  "summary": "...",
-  "impact": "...",
-  "possible_root_cause": "...",
-  "mode_guidance": "...",
-  "where_to_fix": "...",
-  "actions": ["Step 1...", "Step 2..."],
-  "memory_similar_results_count": 3,
-  "memory_similar_results": [...]
-}</div></div>
-    <div class="try-it" data-method="POST" data-path="/v1/assessments/{id}/findings/{finding_id}/analyze">
-      <h4>🧪 Try It</h4>
-      <div class="try-field"><label>Assessment ID</label><input class="try-pathparam" data-key="id" type="text" placeholder="asm_xxxxxxxxxxxx"/></div>
-      <div class="try-field"><label>Finding ID</label><input class="try-pathparam" data-key="finding_id" type="text" placeholder="fnd_xxxxxxxxxxxx"/></div>
-      <div class="try-field"><label>Request Body (JSON, optional)</label><textarea class="try-body">{"focus": ""}</textarea></div>
-      <button class="try-send-btn" onclick="tryEndpoint(this)">Send Request</button>
-      <div class="try-result"></div>
-    </div>
-  </div></div>
-</div>
-</section>
-
-<h2 class="section-group-title">Agent Logs</h2>
-
-<!-- ── 11. GET /v1/assessments/{id}/logs ── -->
-<section class="doc-section" id="ep-agent-logs">
-<div class="endpoint-card">
-  <div class="endpoint-header" onclick="toggleCard(this)">
-    <span class="method-badge method-get">GET</span>
-    <span class="ep-path">/v1/assessments/{id}/logs</span>
-    <span class="ep-title">Agent Activity Logs</span>
-    <svg class="chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"/></svg>
-  </div>
-  <div class="endpoint-body"><div class="endpoint-body-inner">
-    <p>Agent activity logs for robust scans. Returns <code>400 LOGS_NOT_AVAILABLE</code> for lightweight assessments.</p>
-    <h4>Query Parameters</h4>
-    <table class="doc-table">
-      <thead><tr><th>Param</th><th>Type</th><th>Description</th></tr></thead>
-      <tbody>
-        <tr><td><code>page</code></td><td>int</td><td>Page number</td></tr>
-        <tr><td><code>per_page</code></td><td>int</td><td>Items per page</td></tr>
-        <tr><td><code>agent</code></td><td>string</td><td>Filter by agent name</td></tr>
-      </tbody>
-    </table>
-    <h4>Log Entry Shape</h4>
-    <div class="code-block-wrapper"><button class="copy-btn" onclick="copyCodeBlock(this)">Copy</button><div class="code-block">{
-  "id": "log_abc123",
-  "assessment_id": "asm_abc123",
-  "agent": "injection",
-  "step": 3,
-  "action": "http_request",
-  "target": "/api/users?id=1 OR 1=1",
-  "payload": "...",
-  "response_code": 200,
-  "response_preview": "...",
-  "reasoning": "Testing SQL injection on user lookup endpoint.",
-  "finding_id": "fnd_def456",
-  "timestamp": "2026-02-28T12:05:00Z"
-}</div></div>
-    <div class="try-it" data-method="GET" data-path="/v1/assessments/{id}/logs">
-      <h4>🧪 Try It</h4>
-      <div class="try-field"><label>Assessment ID</label><input class="try-pathparam" data-key="id" type="text" placeholder="asm_xxxxxxxxxxxx"/></div>
-      <div class="try-field"><label>agent (optional)</label><input class="try-param" data-key="agent" type="text" placeholder="recon, auth, injection, config"/></div>
-      <button class="try-send-btn" onclick="tryEndpoint(this)">Send Request</button>
-      <div class="try-result"></div>
-    </div>
-  </div></div>
-</div>
-</section>
-
-<h2 class="section-group-title">Agents</h2>
-
-<!-- ── 12. GET /v1/agents ── -->
-<section class="doc-section" id="ep-list-agents">
-<div class="endpoint-card">
-  <div class="endpoint-header" onclick="toggleCard(this)">
-    <span class="method-badge method-get">GET</span>
-    <span class="ep-path">/v1/agents</span>
-    <span class="ep-title">List Agents</span>
-    <svg class="chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"/></svg>
-  </div>
-  <div class="endpoint-body"><div class="endpoint-body-inner">
-    <p>List all 5 agents with descriptions and categories.</p>
-    <div class="try-it" data-method="GET" data-path="/v1/agents">
-      <h4>🧪 Try It</h4>
-      <button class="try-send-btn" onclick="tryEndpoint(this)">Send Request</button>
-      <div class="try-result"></div>
-    </div>
-  </div></div>
-</div>
-</section>
-
-<!-- ── 13. GET /v1/agents/{name} ── -->
-<section class="doc-section" id="ep-get-agent">
-<div class="endpoint-card">
-  <div class="endpoint-header" onclick="toggleCard(this)">
-    <span class="method-badge method-get">GET</span>
-    <span class="ep-path">/v1/agents/{name}</span>
-    <span class="ep-title">Get Agent</span>
-    <svg class="chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"/></svg>
-  </div>
-  <div class="endpoint-body"><div class="endpoint-body-inner">
-    <p>Get a single agent by name. Valid names: <code>recon</code>, <code>auth</code>, <code>injection</code>, <code>config</code>, <code>static</code>.</p>
-    <div class="try-it" data-method="GET" data-path="/v1/agents/{name}">
-      <h4>🧪 Try It</h4>
-      <div class="try-field"><label>Agent Name</label>
-        <select class="try-pathparam" data-key="name">
-          <option value="recon">recon</option>
-          <option value="auth">auth</option>
-          <option value="injection">injection</option>
-          <option value="config">config</option>
-          <option value="static">static</option>
-        </select>
+      <div class="badge-row">
+        <span class="badge-pill">18 Endpoints</span>
+        <span class="badge-pill">REST + WebSocket</span>
+        <span class="badge-pill">Zero Auth</span>
+        <span class="badge-pill">Gemini AI Agents</span>
+        <span class="badge-pill">OpenAPI /docs</span>
       </div>
-      <button class="try-send-btn" onclick="tryEndpoint(this)">Send Request</button>
-      <div class="try-result"></div>
-    </div>
-  </div></div>
-</div>
-</section>
+    </section>
 
-<h2 class="section-group-title">Tunnel</h2>
+    <!-- ── Authentication ── -->
+    <section class="doc-section" id="authentication">
+      <h2>Authentication</h2>
+      <p>VibeCheck requires <strong>no authentication</strong> (hackathon MVP). All endpoints are public. Every response
+        includes an <code>X-Request-ID</code> header for request tracing.</p>
+    </section>
 
-<!-- ── 14. WebSocket /v1/tunnel ── -->
-<section class="doc-section" id="ep-tunnel-ws">
-<div class="endpoint-card">
-  <div class="endpoint-header" onclick="toggleCard(this)">
-    <span class="method-badge method-ws">WS</span>
-    <span class="ep-path">/v1/tunnel</span>
-    <span class="ep-title">Tunnel Client Connection</span>
-    <svg class="chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"/></svg>
-  </div>
-  <div class="endpoint-body"><div class="endpoint-body-inner">
-    <p>WebSocket endpoint for the reverse tunnel client. Used to expose localhost apps for robust scanning.</p>
-    <div class="ws-note"><strong>WebSocket</strong> — No Try It panel. Use the tunnel client CLI.</div>
-    <h4>Quick Start</h4>
-    <div class="code-block-wrapper"><button class="copy-btn" onclick="copyCodeBlock(this)">Copy</button><div class="code-block">pip install vibecheck-client
-vibecheck connect 3000 --server wss://vibecheck-8a86536e.aedify.ai/v1/tunnel</div></div>
-    <h4>Protocol</h4>
-    <div class="code-block-wrapper"><button class="copy-btn" onclick="copyCodeBlock(this)">Copy</button><div class="code-block"># Client → Server: Connect
-{"type": "connect", "target_port": 3000}
+    <!-- ── Error Handling ── -->
+    <section class="doc-section" id="errors">
+      <h2>Error Handling</h2>
+      <p>All errors return a consistent envelope:</p>
+      <div class="code-block-wrapper"><button class="copy-btn" onclick="copyCodeBlock(this)">Copy</button>
+        <div class="code-block">{
+          "error": {
+          "type": "not_found",
+          "message": "Assessment 'asm_abc123' not found.",
+          "code": "ASSESSMENT_NOT_FOUND",
+          "param": null
+          }
+          }</div>
+      </div>
+      <table class="doc-table">
+        <thead>
+          <tr>
+            <th>HTTP</th>
+            <th>Type</th>
+            <th>Codes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>400</code></td>
+            <td>validation_error, tunnel_error</td>
+            <td>INVALID_MODE, MISSING_REPO_URL, MISSING_TUNNEL_SESSION, TUNNEL_NOT_CONNECTED, INVALID_AGENT,
+              LOGS_NOT_AVAILABLE</td>
+          </tr>
+          <tr>
+            <td><code>404</code></td>
+            <td>not_found</td>
+            <td>ASSESSMENT_NOT_FOUND, FINDING_NOT_FOUND, AGENT_NOT_FOUND, TUNNELSESSION_NOT_FOUND</td>
+          </tr>
+          <tr>
+            <td><code>409</code></td>
+            <td>conflict</td>
+            <td>ASSESSMENT_IN_PROGRESS, DUPLICATE_IDEMPOTENCY_KEY</td>
+          </tr>
+          <tr>
+            <td><code>422</code></td>
+            <td>validation_error</td>
+            <td>VALIDATION_ERROR (Pydantic)</td>
+          </tr>
+          <tr>
+            <td><code>502</code></td>
+            <td>external_error, tunnel_error</td>
+            <td>CLONE_FAILED, TARGET_UNREACHABLE</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
 
-# Server → Client: Session Created
-{"type": "session_created", "session_id": "tun_abc123"}
+    <!-- ── Pagination ── -->
+    <section class="doc-section" id="pagination">
+      <h2>Pagination</h2>
+      <p>All list endpoints return a paginated response:</p>
+      <div class="code-block-wrapper"><button class="copy-btn" onclick="copyCodeBlock(this)">Copy</button>
+        <div class="code-block">{
+          "data": [ ... ],
+          "pagination": {
+          "page": 1,
+          "per_page": 20,
+          "total": 42,
+          "total_pages": 3
+          }
+          }</div>
+      </div>
+      <p>Standard query parameters: <code>page</code> (int, default 1) and <code>per_page</code> (int, default 20, max
+        100).</p>
+    </section>
 
-# Server → Client: Forward HTTP request
-{"type": "http_request", "request_id": "req_001", "method": "GET", "path": "/api/users", "headers": {}, "body": null}
+    <!-- ── Quick Start Guide ── -->
+    <section class="doc-section" id="quickstart">
+      <h2>⚡ Quick Start Guide</h2>
+      <p>Get from zero to security findings in <strong>3 steps</strong>. We'll scan a real vulnerable repository — <a
+          href="https://github.com/vulnerable-apps/damn-vulnerable-MCP-server"
+          target="_blank">damn-vulnerable-MCP-server</a> — to show you exactly how VibeCheck works.</p>
 
-# Client → Server: HTTP response
-{"type": "http_response", "request_id": "req_001", "status_code": 200, "headers": {}, "body": "..."}
+      <h3>Step 1 — Check API Health</h3>
+      <p>Verify the API is up and running:</p>
+      <div class="code-block-wrapper"><button class="copy-btn" onclick="copyCodeBlock(this)">Copy</button>
+        <div class="code-block">curl https://vibecheck-8a86536e.aedify.ai/v1/health</div>
+      </div>
+      <p>You should see <code>{"status": "healthy", ...}</code>. Try it below in the <a href="#ep-health">Health
+          endpoint</a>.</p>
 
-# Heartbeat
-Server → Client: {"type": "ping"}
-Client → Server: {"type": "pong"}</div></div>
-  </div></div>
-</div>
-</section>
+      <h3>Step 2 — Create a Scan</h3>
+      <p>Submit the vulnerable repo for lightweight static analysis. This scans the code for SQL injection, hardcoded
+        secrets, XSS, insecure configs, and more:</p>
+      <div class="code-block-wrapper"><button class="copy-btn" onclick="copyCodeBlock(this)">Copy</button>
+        <div class="code-block">curl -X POST https://vibecheck-8a86536e.aedify.ai/v1/assessments \
+          -H "Content-Type: application/json" \
+          -d '{"mode": "lightweight", "repo_url": "https://github.com/vulnerable-apps/damn-vulnerable-MCP-server"}'
+        </div>
+      </div>
+      <p>The API returns <code>202 Accepted</code> with an assessment object. Copy the <code>id</code> field (e.g.
+        <code>asm_abc123</code>) — you'll need it for every following step.</p>
+      <div class="code-block-wrapper"><button class="copy-btn" onclick="copyCodeBlock(this)">Copy</button>
+        <div class="code-block">// Example response
+          {
+          "id": "asm_abc123",
+          "mode": "lightweight",
+          "status": "queued",
+          "repo_url": "https://github.com/vulnerable-apps/damn-vulnerable-MCP-server",
+          "finding_counts": {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0, "total": 0},
+          "created_at": "2026-02-28T12:00:00Z"
+          }</div>
+      </div>
 
-<!-- ── 15. GET /v1/tunnel/sessions ── -->
-<section class="doc-section" id="ep-tunnel-sessions">
-<div class="endpoint-card">
-  <div class="endpoint-header" onclick="toggleCard(this)">
-    <span class="method-badge method-get">GET</span>
-    <span class="ep-path">/v1/tunnel/sessions</span>
-    <span class="ep-title">List Tunnel Sessions</span>
-    <svg class="chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"/></svg>
-  </div>
-  <div class="endpoint-body"><div class="endpoint-body-inner">
-    <p>List all tunnel sessions with status, target port, and last heartbeat.</p>
-    <div class="try-it" data-method="GET" data-path="/v1/tunnel/sessions">
-      <h4>🧪 Try It</h4>
-      <button class="try-send-btn" onclick="tryEndpoint(this)">Send Request</button>
-      <div class="try-result"></div>
-    </div>
-  </div></div>
-</div>
-</section>
+      <h3>Step 3 — Poll for Completion</h3>
+      <p>The scan runs in the background. Poll the assessment status until it reaches <code>complete</code>:</p>
+      <div class="code-block-wrapper"><button class="copy-btn" onclick="copyCodeBlock(this)">Copy</button>
+        <div class="code-block">curl https://vibecheck-8a86536e.aedify.ai/v1/assessments/asm_abc123</div>
+      </div>
+      <p>Status progression: <code>queued</code> → <code>cloning</code> → <code>analyzing</code> → <code>complete</code>
+        (usually ~30-60 seconds).</p>
 
-<!-- ── 16. GET /v1/tunnel/sessions/{id} ── -->
-<section class="doc-section" id="ep-tunnel-session">
-<div class="endpoint-card">
-  <div class="endpoint-header" onclick="toggleCard(this)">
-    <span class="method-badge method-get">GET</span>
-    <span class="ep-path">/v1/tunnel/sessions/{id}</span>
-    <span class="ep-title">Get Tunnel Session</span>
-    <svg class="chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"/></svg>
-  </div>
-  <div class="endpoint-body"><div class="endpoint-body-inner">
-    <p>Get a single tunnel session by ID.</p>
-    <div class="try-it" data-method="GET" data-path="/v1/tunnel/sessions/{id}">
-      <h4>🧪 Try It</h4>
-      <div class="try-field"><label>Session ID</label><input class="try-pathparam" data-key="id" type="text" placeholder="tun_xxxxxxxxxxxx"/></div>
-      <button class="try-send-btn" onclick="tryEndpoint(this)">Send Request</button>
-      <div class="try-result"></div>
-    </div>
-  </div></div>
-</div>
-</section>
+      <h3>Step 4 — View Findings</h3>
+      <p>Once complete, fetch the security findings:</p>
+      <div class="code-block-wrapper"><button class="copy-btn" onclick="copyCodeBlock(this)">Copy</button>
+        <div class="code-block">curl https://vibecheck-8a86536e.aedify.ai/v1/assessments/asm_abc123/findings</div>
+      </div>
+      <p>You'll see findings like SQL injection, hardcoded secrets, command injection, and more — each with severity,
+        description, location, and remediation advice.</p>
 
-<h2 class="section-group-title">Memory</h2>
+      <h3>Step 5 — Deep-Dive with AI Analysis</h3>
+      <p>Pick any finding and get Gemini AI-powered analysis with root cause, impact assessment, and an actionable fix
+        plan:</p>
+      <div class="code-block-wrapper"><button class="copy-btn" onclick="copyCodeBlock(this)">Copy</button>
+        <div class="code-block">curl -X POST
+          https://vibecheck-8a86536e.aedify.ai/v1/assessments/asm_abc123/findings/fnd_abc123/analyze \
+          -H "Content-Type: application/json" \
+          -d '{"focus": "How can an attacker exploit this?"}'</div>
+      </div>
 
-<!-- ── 17. GET /v1/memory/status ── -->
-<section class="doc-section" id="ep-memory-status">
-<div class="endpoint-card">
-  <div class="endpoint-header" onclick="toggleCard(this)">
-    <span class="method-badge method-get">GET</span>
-    <span class="ep-path">/v1/memory/status</span>
-    <span class="ep-title">Memory Status</span>
-    <svg class="chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"/></svg>
-  </div>
-  <div class="endpoint-body"><div class="endpoint-body-inner">
-    <p>Check if Supermemory integration is enabled.</p>
-    <div class="try-it" data-method="GET" data-path="/v1/memory/status">
-      <h4>🧪 Try It</h4>
-      <button class="try-send-btn" onclick="tryEndpoint(this)">Send Request</button>
-      <div class="try-result"></div>
-    </div>
-  </div></div>
-</div>
-</section>
+      <div class="ws-note"><strong>💡 Tip:</strong> All the <strong>Try It</strong> panels below are pre-filled with
+        <code>asm_abc123</code> as a demo ID. Create your own assessment first (Step 2), then replace the ID in any
+        panel to explore your real results!</div>
+    </section>
 
-<!-- ── 18. GET /v1/memory/search ── -->
-<section class="doc-section" id="ep-memory-search">
-<div class="endpoint-card">
-  <div class="endpoint-header" onclick="toggleCard(this)">
-    <span class="method-badge method-get">GET</span>
-    <span class="ep-path">/v1/memory/search</span>
-    <span class="ep-title">Memory Search</span>
-    <svg class="chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"/></svg>
-  </div>
-  <div class="endpoint-body"><div class="endpoint-body-inner">
-    <p>Semantic search across stored findings using Supermemory.</p>
-    <h4>Query Parameters</h4>
-    <table class="doc-table">
-      <thead><tr><th>Param</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
-      <tbody>
-        <tr><td><code>q</code></td><td>string</td><td>Yes</td><td>Search query text</td></tr>
-        <tr><td><code>limit</code></td><td>int</td><td>No</td><td>Max results (default 5, max 25)</td></tr>
-        <tr><td><code>assessment_id</code></td><td>string</td><td>No</td><td>Filter to specific assessment</td></tr>
-      </tbody>
-    </table>
-    <div class="try-it" data-method="GET" data-path="/v1/memory/search">
-      <h4>🧪 Try It</h4>
-      <div class="try-field"><label>q (search query) *</label><input class="try-param" data-key="q" type="text" placeholder="SQL injection vulnerabilities"/></div>
-      <div class="try-field"><label>limit</label><input class="try-param" data-key="limit" type="number" placeholder="5"/></div>
-      <button class="try-send-btn" onclick="tryEndpoint(this)">Send Request</button>
-      <div class="try-result"></div>
-    </div>
-  </div></div>
-</div>
-</section>
+    <!-- ═══════════════════════════════════════════ -->
+    <!--           ENDPOINT SECTIONS                -->
+    <!-- ═══════════════════════════════════════════ -->
 
-</main>
+    <h2 class="section-group-title">Health</h2>
 
-<script src="./docs.js"></script>
+    <!-- ── 1. GET /v1/health ── -->
+    <section class="doc-section" id="ep-health">
+      <div class="endpoint-card">
+        <div class="endpoint-header" onclick="toggleCard(this)">
+          <span class="method-badge method-get">GET</span>
+          <span class="ep-path">/v1/health</span>
+          <span class="ep-title">Health Check</span>
+          <svg class="chevron" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd"
+              d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" />
+          </svg>
+        </div>
+        <div class="endpoint-body">
+          <div class="endpoint-body-inner">
+            <p>Returns API health status, version, active tunnel count, and agent availability.</p>
+            <h4>Parameters</h4>
+            <p>None</p>
+            <h4>Example Response</h4>
+            <div class="code-block-wrapper"><button class="copy-btn" onclick="copyCodeBlock(this)">Copy</button>
+              <div class="code-block">{
+                "status": "healthy",
+                "version": "1.0.0",
+                "active_tunnels": 0,
+                "agents_available": true
+                }</div>
+            </div>
+            <h4>cURL</h4>
+            <div class="code-block-wrapper"><button class="copy-btn" onclick="copyCodeBlock(this)">Copy</button>
+              <div class="code-block">curl https://vibecheck-8a86536e.aedify.ai/v1/health</div>
+            </div>
+            <div class="try-it" data-method="GET" data-path="/v1/health">
+              <h4>🧪 Try It</h4>
+              <button class="try-send-btn" onclick="tryEndpoint(this)">Send Request</button>
+              <div class="try-result"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <h2 class="section-group-title">Assessments</h2>
+
+    <!-- ── 2. POST /v1/assessments ── -->
+    <section class="doc-section" id="ep-create-assessment">
+      <div class="endpoint-card">
+        <div class="endpoint-header" onclick="toggleCard(this)">
+          <span class="method-badge method-post">POST</span>
+          <span class="ep-path">/v1/assessments</span>
+          <span class="ep-title">Create Assessment</span>
+          <svg class="chevron" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd"
+              d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" />
+          </svg>
+        </div>
+        <div class="endpoint-body">
+          <div class="endpoint-body-inner">
+            <p>Create a security assessment. Returns <code>202 Accepted</code>. The scan runs in the background.</p>
+            <h4>Body Parameters</h4>
+            <table class="doc-table">
+              <thead>
+                <tr>
+                  <th>Param</th>
+                  <th>Type</th>
+                  <th>Required</th>
+                  <th>Description</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>mode</code></td>
+                  <td>string</td>
+                  <td>Yes</td>
+                  <td><code>"lightweight"</code> or <code>"robust"</code></td>
+                </tr>
+                <tr>
+                  <td><code>repo_url</code></td>
+                  <td>string</td>
+                  <td>Conditional</td>
+                  <td>GitHub URL. Required for lightweight if no <code>files</code>.</td>
+                </tr>
+                <tr>
+                  <td><code>files</code></td>
+                  <td>array</td>
+                  <td>Conditional</td>
+                  <td>Array of <code>{path, content}</code>. Required for lightweight if no <code>repo_url</code>.</td>
+                </tr>
+                <tr>
+                  <td><code>target_url</code></td>
+                  <td>string</td>
+                  <td>Conditional</td>
+                  <td>Any reachable URL. Required for robust.</td>
+                </tr>
+                <tr>
+                  <td><code>tunnel_session_id</code></td>
+                  <td>string</td>
+                  <td>No</td>
+                  <td>Only needed with built-in tunnel.</td>
+                </tr>
+                <tr>
+                  <td><code>agents</code></td>
+                  <td>string[]</td>
+                  <td>No</td>
+                  <td>Default: <code>["recon","auth","injection","config"]</code></td>
+                </tr>
+                <tr>
+                  <td><code>depth</code></td>
+                  <td>string</td>
+                  <td>No</td>
+                  <td><code>"quick"</code> (5), <code>"standard"</code> (15), <code>"deep"</code> (30)</td>
+                </tr>
+                <tr>
+                  <td><code>idempotency_key</code></td>
+                  <td>string</td>
+                  <td>No</td>
+                  <td>Prevents duplicate scans.</td>
+                </tr>
+              </tbody>
+            </table>
+            <h4>Example: Lightweight with repo_url</h4>
+            <div class="code-block-wrapper"><button class="copy-btn" onclick="copyCodeBlock(this)">Copy</button>
+              <div class="code-block">curl -X POST https://vibecheck-8a86536e.aedify.ai/v1/assessments \
+                -H "Content-Type: application/json" \
+                -d '{"mode": "lightweight", "repo_url": "https://github.com/user/repo"}'</div>
+            </div>
+            <h4>Example: Lightweight with inline files</h4>
+            <div class="code-block-wrapper"><button class="copy-btn" onclick="copyCodeBlock(this)">Copy</button>
+              <div class="code-block">{
+                "mode": "lightweight",
+                "files": [{
+                "path": "app.py",
+                "content": "import os\nJWT_SECRET = \"supersecret123\"\ndb.execute(f\"SELECT * FROM users WHERE id =
+                {id}\")\nos.system(\"rm -rf \" + user_input)\napp.run(debug=True)"
+                }]
+                }</div>
+            </div>
+            <h4>Example: Robust with target_url</h4>
+            <div class="code-block-wrapper"><button class="copy-btn" onclick="copyCodeBlock(this)">Copy</button>
+              <div class="code-block">curl -X POST https://vibecheck-8a86536e.aedify.ai/v1/assessments \
+                -H "Content-Type: application/json" \
+                -d '{"mode": "robust", "target_url": "https://example.com", "depth": "standard"}'</div>
+            </div>
+            <div class="try-it" data-method="POST" data-path="/v1/assessments">
+              <h4>🧪 Try It</h4>
+              <div class="try-field"><label>Request Body (JSON)</label>
+                <textarea
+                  class="try-body">{"mode": "lightweight", "repo_url": "https://github.com/vulnerable-apps/damn-vulnerable-MCP-server"}</textarea>
+              </div>
+              <button class="try-send-btn" onclick="tryEndpoint(this)">Send Request</button>
+              <div class="try-result"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 3. GET /v1/assessments ── -->
+    <section class="doc-section" id="ep-list-assessments">
+      <div class="endpoint-card">
+        <div class="endpoint-header" onclick="toggleCard(this)">
+          <span class="method-badge method-get">GET</span>
+          <span class="ep-path">/v1/assessments</span>
+          <span class="ep-title">List Assessments</span>
+          <svg class="chevron" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd"
+              d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" />
+          </svg>
+        </div>
+        <div class="endpoint-body">
+          <div class="endpoint-body-inner">
+            <p>List assessments with pagination, filtering, and sorting.</p>
+            <h4>Query Parameters</h4>
+            <table class="doc-table">
+              <thead>
+                <tr>
+                  <th>Param</th>
+                  <th>Type</th>
+                  <th>Default</th>
+                  <th>Description</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>page</code></td>
+                  <td>int</td>
+                  <td>1</td>
+                  <td>Page number</td>
+                </tr>
+                <tr>
+                  <td><code>per_page</code></td>
+                  <td>int</td>
+                  <td>20</td>
+                  <td>Items per page (max 100)</td>
+                </tr>
+                <tr>
+                  <td><code>mode</code></td>
+                  <td>string</td>
+                  <td>—</td>
+                  <td>Filter: <code>lightweight</code> or <code>robust</code></td>
+                </tr>
+                <tr>
+                  <td><code>status</code></td>
+                  <td>string</td>
+                  <td>—</td>
+                  <td>Filter: queued, cloning, analyzing, scanning, complete, failed</td>
+                </tr>
+                <tr>
+                  <td><code>sort</code></td>
+                  <td>string</td>
+                  <td>-created_at</td>
+                  <td>Sort field (prefix <code>-</code> for desc)</td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="try-it" data-method="GET" data-path="/v1/assessments">
+              <h4>🧪 Try It</h4>
+              <div class="try-field"><label>per_page</label><input class="try-param" data-key="per_page" type="number"
+                  placeholder="20" /></div>
+              <div class="try-field"><label>mode</label><select class="try-param" data-key="mode">
+                  <option value="">All</option>
+                  <option value="lightweight">lightweight</option>
+                  <option value="robust">robust</option>
+                </select></div>
+              <div class="try-field"><label>status</label><select class="try-param" data-key="status">
+                  <option value="">All</option>
+                  <option value="queued">queued</option>
+                  <option value="cloning">cloning</option>
+                  <option value="analyzing">analyzing</option>
+                  <option value="scanning">scanning</option>
+                  <option value="complete">complete</option>
+                  <option value="failed">failed</option>
+                </select></div>
+              <button class="try-send-btn" onclick="tryEndpoint(this)">Send Request</button>
+              <div class="try-result"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 4. GET /v1/assessments/{id} ── -->
+    <section class="doc-section" id="ep-get-assessment">
+      <div class="endpoint-card">
+        <div class="endpoint-header" onclick="toggleCard(this)">
+          <span class="method-badge method-get">GET</span>
+          <span class="ep-path">/v1/assessments/{id}</span>
+          <span class="ep-title">Get Assessment</span>
+          <svg class="chevron" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd"
+              d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" />
+          </svg>
+        </div>
+        <div class="endpoint-body">
+          <div class="endpoint-body-inner">
+            <p>Get full assessment detail. Status progresses: <code>queued</code> → <code>cloning</code> →
+              <code>analyzing</code> → <code>scanning</code> → <code>complete</code> | <code>failed</code>.</p>
+            <h4>Path Parameters</h4>
+            <table class="doc-table">
+              <thead>
+                <tr>
+                  <th>Param</th>
+                  <th>Type</th>
+                  <th>Required</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>id</code></td>
+                  <td>string</td>
+                  <td>Yes</td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="try-it" data-method="GET" data-path="/v1/assessments/{id}">
+              <h4>🧪 Try It</h4>
+              <div class="try-field"><label>Assessment ID</label><input class="try-pathparam" data-key="id" type="text"
+                  value="asm_abc123" placeholder="asm_xxxxxxxxxxxx" /></div>
+              <button class="try-send-btn" onclick="tryEndpoint(this)">Send Request</button>
+              <div class="try-result"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 5. DELETE /v1/assessments/{id} ── -->
+    <section class="doc-section" id="ep-delete-assessment">
+      <div class="endpoint-card">
+        <div class="endpoint-header" onclick="toggleCard(this)">
+          <span class="method-badge method-delete">DELETE</span>
+          <span class="ep-path">/v1/assessments/{id}</span>
+          <span class="ep-title">Delete Assessment</span>
+          <svg class="chevron" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd"
+              d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" />
+          </svg>
+        </div>
+        <div class="endpoint-body">
+          <div class="endpoint-body-inner">
+            <p>Delete assessment and all associated findings and logs. Returns <code>204 No Content</code>.</p>
+            <div class="try-it" data-method="DELETE" data-path="/v1/assessments/{id}">
+              <h4>🧪 Try It</h4>
+              <div class="try-field"><label>Assessment ID</label><input class="try-pathparam" data-key="id" type="text"
+                  value="asm_abc123" placeholder="asm_xxxxxxxxxxxx" /></div>
+              <button class="try-send-btn" onclick="tryEndpoint(this)">Send Request</button>
+              <div class="try-result"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 6. POST /v1/assessments/{id}/rerun ── -->
+    <section class="doc-section" id="ep-rerun-assessment">
+      <div class="endpoint-card">
+        <div class="endpoint-header" onclick="toggleCard(this)">
+          <span class="method-badge method-post">POST</span>
+          <span class="ep-path">/v1/assessments/{id}/rerun</span>
+          <span class="ep-title">Re-run Assessment</span>
+          <svg class="chevron" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd"
+              d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" />
+          </svg>
+        </div>
+        <div class="endpoint-body">
+          <div class="endpoint-body-inner">
+            <p>Re-run a completed or failed assessment. Clears existing findings and logs, resets status to
+              <code>queued</code>. Returns <code>409</code> if the assessment is still in progress.</p>
+            <div class="try-it" data-method="POST" data-path="/v1/assessments/{id}/rerun">
+              <h4>🧪 Try It</h4>
+              <div class="try-field"><label>Assessment ID</label><input class="try-pathparam" data-key="id" type="text"
+                  value="asm_abc123" placeholder="asm_xxxxxxxxxxxx" /></div>
+              <button class="try-send-btn" onclick="tryEndpoint(this)">Send Request</button>
+              <div class="try-result"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 7. WebSocket /v1/assessments/{id}/ws ── -->
+    <section class="doc-section" id="ep-assessment-ws">
+      <div class="endpoint-card">
+        <div class="endpoint-header" onclick="toggleCard(this)">
+          <span class="method-badge method-ws">WS</span>
+          <span class="ep-path">/v1/assessments/{id}/ws</span>
+          <span class="ep-title">Real-time Status Stream</span>
+          <svg class="chevron" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd"
+              d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" />
+          </svg>
+        </div>
+        <div class="endpoint-body">
+          <div class="endpoint-body-inner">
+            <p>WebSocket endpoint for real-time assessment status updates. Server sends <code>assessment_update</code>
+              on status changes and <code>assessment_terminal</code> on completion.</p>
+            <div class="ws-note"><strong>WebSocket</strong> — No Try It panel. Connect using a WebSocket client.</div>
+            <h4>Server Message: Status Update</h4>
+            <div class="code-block-wrapper"><button class="copy-btn" onclick="copyCodeBlock(this)">Copy</button>
+              <div class="code-block">{
+                "type": "assessment_update",
+                "assessment": {
+                "id": "asm_abc123",
+                "status": "scanning",
+                "finding_counts": {"critical": 0, "high": 1, "medium": 2, "low": 0, "info": 0, "total": 3}
+                }
+                }</div>
+            </div>
+            <h4>Server Message: Terminal</h4>
+            <div class="code-block-wrapper"><button class="copy-btn" onclick="copyCodeBlock(this)">Copy</button>
+              <div class="code-block">{
+                "type": "assessment_terminal",
+                "assessment": {
+                "id": "asm_abc123",
+                "status": "complete",
+                "finding_counts": {"critical": 1, "high": 3, "medium": 5, "low": 2, "info": 1, "total": 12}
+                }
+                }</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <h2 class="section-group-title">Findings</h2>
+
+    <!-- ── 8. GET /v1/assessments/{id}/findings ── -->
+    <section class="doc-section" id="ep-list-findings">
+      <div class="endpoint-card">
+        <div class="endpoint-header" onclick="toggleCard(this)">
+          <span class="method-badge method-get">GET</span>
+          <span class="ep-path">/v1/assessments/{id}/findings</span>
+          <span class="ep-title">List Findings</span>
+          <svg class="chevron" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd"
+              d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" />
+          </svg>
+        </div>
+        <div class="endpoint-body">
+          <div class="endpoint-body-inner">
+            <p>List findings for an assessment. Filterable, searchable, and paginated. Default sort uses domain
+              ordering: critical → high → medium → low → info.</p>
+            <h4>Query Parameters</h4>
+            <table class="doc-table">
+              <thead>
+                <tr>
+                  <th>Param</th>
+                  <th>Type</th>
+                  <th>Description</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>page</code></td>
+                  <td>int</td>
+                  <td>Page number (default 1)</td>
+                </tr>
+                <tr>
+                  <td><code>per_page</code></td>
+                  <td>int</td>
+                  <td>Items per page (default 20)</td>
+                </tr>
+                <tr>
+                  <td><code>severity</code></td>
+                  <td>string</td>
+                  <td>critical, high, medium, low, info</td>
+                </tr>
+                <tr>
+                  <td><code>category</code></td>
+                  <td>string</td>
+                  <td>e.g. sql_injection, xss, hardcoded_secret</td>
+                </tr>
+                <tr>
+                  <td><code>agent</code></td>
+                  <td>string</td>
+                  <td>Filter by agent name</td>
+                </tr>
+                <tr>
+                  <td><code>q</code></td>
+                  <td>string</td>
+                  <td>Text search across title + description</td>
+                </tr>
+                <tr>
+                  <td><code>sort</code></td>
+                  <td>string</td>
+                  <td>Default <code>severity</code></td>
+                </tr>
+              </tbody>
+            </table>
+            <h4>Example Finding Object</h4>
+            <div class="code-block-wrapper"><button class="copy-btn" onclick="copyCodeBlock(this)">Copy</button>
+              <div class="code-block">{
+                "id": "fnd_abc123def456",
+                "assessment_id": "asm_abc123",
+                "severity": "critical",
+                "category": "sql_injection",
+                "title": "SQL Injection via string formatting",
+                "description": "User input directly interpolated into SQL query...",
+                "location": {"file": "app.py", "line": 3, "snippet": "db.execute(f\"SELECT...\")"},
+                "evidence": null,
+                "remediation": "Use parameterized queries instead of string formatting.",
+                "agent": "static_pattern",
+                "created_at": "2026-02-28T12:00:00Z"
+                }</div>
+            </div>
+            <div class="try-it" data-method="GET" data-path="/v1/assessments/{id}/findings">
+              <h4>🧪 Try It</h4>
+              <div class="try-field"><label>Assessment ID</label><input class="try-pathparam" data-key="id" type="text"
+                  value="asm_abc123" placeholder="asm_xxxxxxxxxxxx" /></div>
+              <div class="try-field"><label>severity</label><select class="try-param" data-key="severity">
+                  <option value="">All</option>
+                  <option value="critical">critical</option>
+                  <option value="high">high</option>
+                  <option value="medium">medium</option>
+                  <option value="low">low</option>
+                  <option value="info">info</option>
+                </select></div>
+              <div class="try-field"><label>q (search)</label><input class="try-param" data-key="q" type="text"
+                  placeholder="Search text…" /></div>
+              <button class="try-send-btn" onclick="tryEndpoint(this)">Send Request</button>
+              <div class="try-result"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 9. GET /v1/assessments/{id}/findings/{finding_id} ── -->
+    <section class="doc-section" id="ep-get-finding">
+      <div class="endpoint-card">
+        <div class="endpoint-header" onclick="toggleCard(this)">
+          <span class="method-badge method-get">GET</span>
+          <span class="ep-path">/v1/assessments/{id}/findings/{finding_id}</span>
+          <span class="ep-title">Get Finding</span>
+          <svg class="chevron" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd"
+              d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" />
+          </svg>
+        </div>
+        <div class="endpoint-body">
+          <div class="endpoint-body-inner">
+            <p>Get a single finding with full detail.</p>
+            <div class="try-it" data-method="GET" data-path="/v1/assessments/{id}/findings/{finding_id}">
+              <h4>🧪 Try It</h4>
+              <div class="try-field"><label>Assessment ID</label><input class="try-pathparam" data-key="id" type="text"
+                  value="asm_abc123" placeholder="asm_xxxxxxxxxxxx" /></div>
+              <div class="try-field"><label>Finding ID</label><input class="try-pathparam" data-key="finding_id"
+                  type="text" value="fnd_abc123" placeholder="fnd_xxxxxxxxxxxx" /></div>
+              <button class="try-send-btn" onclick="tryEndpoint(this)">Send Request</button>
+              <div class="try-result"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 10. POST /v1/assessments/{id}/findings/{finding_id}/analyze ── -->
+    <section class="doc-section" id="ep-analyze-finding">
+      <div class="endpoint-card">
+        <div class="endpoint-header" onclick="toggleCard(this)">
+          <span class="method-badge method-post">POST</span>
+          <span class="ep-path">/v1/assessments/{id}/findings/{finding_id}/analyze</span>
+          <span class="ep-title">Analyze Finding (AI)</span>
+          <svg class="chevron" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd"
+              d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" />
+          </svg>
+        </div>
+        <div class="endpoint-body">
+          <div class="endpoint-body-inner">
+            <p>Gemini AI-powered deep analysis of a finding. Returns summary, impact, root cause, mode-specific
+              guidance, where to fix, action plan, and similar findings from Supermemory.</p>
+            <h4>Body (optional)</h4>
+            <div class="code-block-wrapper"><button class="copy-btn" onclick="copyCodeBlock(this)">Copy</button>
+              <div class="code-block">{"focus": "optional guidance string"}</div>
+            </div>
+            <h4>Response Shape</h4>
+            <div class="code-block-wrapper"><button class="copy-btn" onclick="copyCodeBlock(this)">Copy</button>
+              <div class="code-block">{
+                "summary": "...",
+                "impact": "...",
+                "possible_root_cause": "...",
+                "mode_guidance": "...",
+                "where_to_fix": "...",
+                "actions": ["Step 1...", "Step 2..."],
+                "memory_similar_results_count": 3,
+                "memory_similar_results": [...]
+                }</div>
+            </div>
+            <div class="try-it" data-method="POST" data-path="/v1/assessments/{id}/findings/{finding_id}/analyze">
+              <h4>🧪 Try It</h4>
+              <div class="try-field"><label>Assessment ID</label><input class="try-pathparam" data-key="id" type="text"
+                  value="asm_abc123" placeholder="asm_xxxxxxxxxxxx" /></div>
+              <div class="try-field"><label>Finding ID</label><input class="try-pathparam" data-key="finding_id"
+                  type="text" value="fnd_abc123" placeholder="fnd_xxxxxxxxxxxx" /></div>
+              <div class="try-field"><label>Request Body (JSON, optional)</label><textarea
+                  class="try-body">{"focus": ""}</textarea></div>
+              <button class="try-send-btn" onclick="tryEndpoint(this)">Send Request</button>
+              <div class="try-result"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <h2 class="section-group-title">Agent Logs</h2>
+
+    <!-- ── 11. GET /v1/assessments/{id}/logs ── -->
+    <section class="doc-section" id="ep-agent-logs">
+      <div class="endpoint-card">
+        <div class="endpoint-header" onclick="toggleCard(this)">
+          <span class="method-badge method-get">GET</span>
+          <span class="ep-path">/v1/assessments/{id}/logs</span>
+          <span class="ep-title">Agent Activity Logs</span>
+          <svg class="chevron" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd"
+              d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" />
+          </svg>
+        </div>
+        <div class="endpoint-body">
+          <div class="endpoint-body-inner">
+            <p>Agent activity logs for robust scans. Returns <code>400 LOGS_NOT_AVAILABLE</code> for lightweight
+              assessments.</p>
+            <h4>Query Parameters</h4>
+            <table class="doc-table">
+              <thead>
+                <tr>
+                  <th>Param</th>
+                  <th>Type</th>
+                  <th>Description</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>page</code></td>
+                  <td>int</td>
+                  <td>Page number</td>
+                </tr>
+                <tr>
+                  <td><code>per_page</code></td>
+                  <td>int</td>
+                  <td>Items per page</td>
+                </tr>
+                <tr>
+                  <td><code>agent</code></td>
+                  <td>string</td>
+                  <td>Filter by agent name</td>
+                </tr>
+              </tbody>
+            </table>
+            <h4>Log Entry Shape</h4>
+            <div class="code-block-wrapper"><button class="copy-btn" onclick="copyCodeBlock(this)">Copy</button>
+              <div class="code-block">{
+                "id": "log_abc123",
+                "assessment_id": "asm_abc123",
+                "agent": "injection",
+                "step": 3,
+                "action": "http_request",
+                "target": "/api/users?id=1 OR 1=1",
+                "payload": "...",
+                "response_code": 200,
+                "response_preview": "...",
+                "reasoning": "Testing SQL injection on user lookup endpoint.",
+                "finding_id": "fnd_def456",
+                "timestamp": "2026-02-28T12:05:00Z"
+                }</div>
+            </div>
+            <div class="try-it" data-method="GET" data-path="/v1/assessments/{id}/logs">
+              <h4>🧪 Try It</h4>
+              <div class="try-field"><label>Assessment ID</label><input class="try-pathparam" data-key="id" type="text"
+                  value="asm_abc123" placeholder="asm_xxxxxxxxxxxx" /></div>
+              <div class="try-field"><label>agent (optional)</label><input class="try-param" data-key="agent"
+                  type="text" placeholder="recon, auth, injection, config" /></div>
+              <button class="try-send-btn" onclick="tryEndpoint(this)">Send Request</button>
+              <div class="try-result"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <h2 class="section-group-title">Agents</h2>
+
+    <!-- ── 12. GET /v1/agents ── -->
+    <section class="doc-section" id="ep-list-agents">
+      <div class="endpoint-card">
+        <div class="endpoint-header" onclick="toggleCard(this)">
+          <span class="method-badge method-get">GET</span>
+          <span class="ep-path">/v1/agents</span>
+          <span class="ep-title">List Agents</span>
+          <svg class="chevron" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd"
+              d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" />
+          </svg>
+        </div>
+        <div class="endpoint-body">
+          <div class="endpoint-body-inner">
+            <p>List all 5 agents with descriptions and categories.</p>
+            <div class="try-it" data-method="GET" data-path="/v1/agents">
+              <h4>🧪 Try It</h4>
+              <button class="try-send-btn" onclick="tryEndpoint(this)">Send Request</button>
+              <div class="try-result"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 13. GET /v1/agents/{name} ── -->
+    <section class="doc-section" id="ep-get-agent">
+      <div class="endpoint-card">
+        <div class="endpoint-header" onclick="toggleCard(this)">
+          <span class="method-badge method-get">GET</span>
+          <span class="ep-path">/v1/agents/{name}</span>
+          <span class="ep-title">Get Agent</span>
+          <svg class="chevron" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd"
+              d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" />
+          </svg>
+        </div>
+        <div class="endpoint-body">
+          <div class="endpoint-body-inner">
+            <p>Get a single agent by name. Valid names: <code>recon</code>, <code>auth</code>, <code>injection</code>,
+              <code>config</code>, <code>static</code>.</p>
+            <div class="try-it" data-method="GET" data-path="/v1/agents/{name}">
+              <h4>🧪 Try It</h4>
+              <div class="try-field"><label>Agent Name</label>
+                <select class="try-pathparam" data-key="name">
+                  <option value="recon">recon</option>
+                  <option value="auth">auth</option>
+                  <option value="injection">injection</option>
+                  <option value="config">config</option>
+                  <option value="static">static</option>
+                </select>
+              </div>
+              <button class="try-send-btn" onclick="tryEndpoint(this)">Send Request</button>
+              <div class="try-result"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <h2 class="section-group-title">Tunnel</h2>
+
+    <!-- ── 14. WebSocket /v1/tunnel ── -->
+    <section class="doc-section" id="ep-tunnel-ws">
+      <div class="endpoint-card">
+        <div class="endpoint-header" onclick="toggleCard(this)">
+          <span class="method-badge method-ws">WS</span>
+          <span class="ep-path">/v1/tunnel</span>
+          <span class="ep-title">Tunnel Client Connection</span>
+          <svg class="chevron" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd"
+              d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" />
+          </svg>
+        </div>
+        <div class="endpoint-body">
+          <div class="endpoint-body-inner">
+            <p>WebSocket endpoint for the reverse tunnel client. Used to expose localhost apps for robust scanning.</p>
+            <div class="ws-note"><strong>WebSocket</strong> — No Try It panel. Use the tunnel client CLI.</div>
+            <h4>Quick Start</h4>
+            <div class="code-block-wrapper"><button class="copy-btn" onclick="copyCodeBlock(this)">Copy</button>
+              <div class="code-block">pip install vibecheck-client
+                vibecheck connect 3000 --server wss://vibecheck-8a86536e.aedify.ai/v1/tunnel</div>
+            </div>
+            <h4>Protocol</h4>
+            <div class="code-block-wrapper"><button class="copy-btn" onclick="copyCodeBlock(this)">Copy</button>
+              <div class="code-block"># Client → Server: Connect
+                {"type": "connect", "target_port": 3000}
+
+                # Server → Client: Session Created
+                {"type": "session_created", "session_id": "tun_abc123"}
+
+                # Server → Client: Forward HTTP request
+                {"type": "http_request", "request_id": "req_001", "method": "GET", "path": "/api/users", "headers": {},
+                "body": null}
+
+                # Client → Server: HTTP response
+                {"type": "http_response", "request_id": "req_001", "status_code": 200, "headers": {}, "body": "..."}
+
+                # Heartbeat
+                Server → Client: {"type": "ping"}
+                Client → Server: {"type": "pong"}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 15. GET /v1/tunnel/sessions ── -->
+    <section class="doc-section" id="ep-tunnel-sessions">
+      <div class="endpoint-card">
+        <div class="endpoint-header" onclick="toggleCard(this)">
+          <span class="method-badge method-get">GET</span>
+          <span class="ep-path">/v1/tunnel/sessions</span>
+          <span class="ep-title">List Tunnel Sessions</span>
+          <svg class="chevron" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd"
+              d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" />
+          </svg>
+        </div>
+        <div class="endpoint-body">
+          <div class="endpoint-body-inner">
+            <p>List all tunnel sessions with status, target port, and last heartbeat.</p>
+            <div class="try-it" data-method="GET" data-path="/v1/tunnel/sessions">
+              <h4>🧪 Try It</h4>
+              <button class="try-send-btn" onclick="tryEndpoint(this)">Send Request</button>
+              <div class="try-result"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 16. GET /v1/tunnel/sessions/{id} ── -->
+    <section class="doc-section" id="ep-tunnel-session">
+      <div class="endpoint-card">
+        <div class="endpoint-header" onclick="toggleCard(this)">
+          <span class="method-badge method-get">GET</span>
+          <span class="ep-path">/v1/tunnel/sessions/{id}</span>
+          <span class="ep-title">Get Tunnel Session</span>
+          <svg class="chevron" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd"
+              d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" />
+          </svg>
+        </div>
+        <div class="endpoint-body">
+          <div class="endpoint-body-inner">
+            <p>Get a single tunnel session by ID.</p>
+            <div class="try-it" data-method="GET" data-path="/v1/tunnel/sessions/{id}">
+              <h4>🧪 Try It</h4>
+              <div class="try-field"><label>Session ID</label><input class="try-pathparam" data-key="id" type="text"
+                  placeholder="tun_xxxxxxxxxxxx" /></div>
+              <button class="try-send-btn" onclick="tryEndpoint(this)">Send Request</button>
+              <div class="try-result"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <h2 class="section-group-title">Memory</h2>
+
+    <!-- ── 17. GET /v1/memory/status ── -->
+    <section class="doc-section" id="ep-memory-status">
+      <div class="endpoint-card">
+        <div class="endpoint-header" onclick="toggleCard(this)">
+          <span class="method-badge method-get">GET</span>
+          <span class="ep-path">/v1/memory/status</span>
+          <span class="ep-title">Memory Status</span>
+          <svg class="chevron" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd"
+              d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" />
+          </svg>
+        </div>
+        <div class="endpoint-body">
+          <div class="endpoint-body-inner">
+            <p>Check if Supermemory integration is enabled.</p>
+            <div class="try-it" data-method="GET" data-path="/v1/memory/status">
+              <h4>🧪 Try It</h4>
+              <button class="try-send-btn" onclick="tryEndpoint(this)">Send Request</button>
+              <div class="try-result"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 18. GET /v1/memory/search ── -->
+    <section class="doc-section" id="ep-memory-search">
+      <div class="endpoint-card">
+        <div class="endpoint-header" onclick="toggleCard(this)">
+          <span class="method-badge method-get">GET</span>
+          <span class="ep-path">/v1/memory/search</span>
+          <span class="ep-title">Memory Search</span>
+          <svg class="chevron" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd"
+              d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" />
+          </svg>
+        </div>
+        <div class="endpoint-body">
+          <div class="endpoint-body-inner">
+            <p>Semantic search across stored findings using Supermemory.</p>
+            <h4>Query Parameters</h4>
+            <table class="doc-table">
+              <thead>
+                <tr>
+                  <th>Param</th>
+                  <th>Type</th>
+                  <th>Required</th>
+                  <th>Description</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>q</code></td>
+                  <td>string</td>
+                  <td>Yes</td>
+                  <td>Search query text</td>
+                </tr>
+                <tr>
+                  <td><code>limit</code></td>
+                  <td>int</td>
+                  <td>No</td>
+                  <td>Max results (default 5, max 25)</td>
+                </tr>
+                <tr>
+                  <td><code>assessment_id</code></td>
+                  <td>string</td>
+                  <td>No</td>
+                  <td>Filter to specific assessment</td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="try-it" data-method="GET" data-path="/v1/memory/search">
+              <h4>🧪 Try It</h4>
+              <div class="try-field"><label>q (search query) *</label><input class="try-param" data-key="q" type="text"
+                  value="SQL injection" placeholder="SQL injection vulnerabilities" /></div>
+              <div class="try-field"><label>limit</label><input class="try-param" data-key="limit" type="number"
+                  placeholder="5" /></div>
+              <button class="try-send-btn" onclick="tryEndpoint(this)">Send Request</button>
+              <div class="try-result"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <script src="./docs.js"></script>
 </body>
+
 </html>
