@@ -4,10 +4,10 @@
     <strong>AI-powered security scanning for vibe-coded applications</strong>
   </p>
   <p align="center">
-    <a href="https://vibecheck-test-1beb2409.aedify.ai"><strong>Live API</strong></a> · 
-    <a href="https://vibecheck-test-1beb2409.aedify.ai/docs.html"><strong>API Docs</strong></a> · 
-    <a href="https://vibecheck-test-1beb2409.aedify.ai/docs"><strong>OpenAPI</strong></a> · 
-    <a href="https://vibecheck-test-1beb2409.aedify.ai"><strong>Dashboard</strong></a> · 
+    <a href="https://vibechecker.aedify.ai"><strong>Live API</strong></a> · 
+    <a href="https://vibechecker.aedify.ai/docs.html"><strong>API Docs</strong></a> · 
+    <a href="https://vibechecker.aedify.ai/docs"><strong>OpenAPI</strong></a> · 
+    <a href="https://vibechecker.aedify.ai"><strong>Dashboard</strong></a> · 
     <a href="https://github.com/rajendrathalluru/vibecheck1/tree/main/mcp_server"><strong>MCP Server</strong></a>
   </p>
 </p>
