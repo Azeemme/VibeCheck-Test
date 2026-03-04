@@ -3,7 +3,7 @@
 // ── API Base URL ──
 function getApiBase() {
   const el = document.getElementById('apiBaseUrl');
-  return el ? el.value.trim().replace(/\/+$/, '') : 'https://vibecheck-8a86536e.aedify.ai';
+  return el ? el.value.trim().replace(/\/+$/, '') : 'https://vibechecker.aedify.ai';
 }
 
 // ── Update Swagger / ReDoc links when base URL changes ──

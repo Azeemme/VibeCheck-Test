@@ -6,7 +6,7 @@
 **Project:** VibeCheck API
 **Event:** HackIllinois 2026 — Stripe Track: Best Web API
 **Prize:** 1st: $2,000 + JBL headphones | Honorable mention: $500 + $100 Amazon GC
-**Deployed at:** https://vibecheck-test-1beb2409.aedify.ai
+**Deployed at:** https://vibechecker.aedify.ai
 
 **One-liner:** A public HTTP API that security-scans vibe-coded apps in two modes — lightweight static analysis of source code and robust AI-powered red-teaming of running applications through a built-in WebSocket reverse tunnel.
 
@@ -17,7 +17,7 @@
 ```
 ┌──────────────────────────────────────────────────────────────┐
 │  VibeCheck API (Public)                                       │
-│  vibecheck-test-1beb2409.aedify.ai                            │
+│  vibechecker.aedify.ai                                        │
 │                                                               │
 │  ┌─────────────┐  ┌───────────────┐  ┌────────────────────┐ │
 │  │ Lightweight  │  │    Robust     │  │  Frontend Dashboard│ │

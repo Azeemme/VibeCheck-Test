@@ -4,10 +4,10 @@
     <strong>AI-powered security scanning for vibe-coded applications</strong>
   </p>
   <p align="center">
-    <a href="https://vibecheck-test-1beb2409.aedify.ai"><strong>Live API</strong></a> · 
-    <a href="https://vibecheck-test-1beb2409.aedify.ai/docs.html"><strong>API Docs</strong></a> · 
-    <a href="https://vibecheck-test-1beb2409.aedify.ai/docs"><strong>OpenAPI</strong></a> · 
-    <a href="https://vibecheck-test-1beb2409.aedify.ai"><strong>Dashboard</strong></a> · 
+    <a href="https://vibechecker.aedify.ai"><strong>Live API</strong></a> · 
+    <a href="https://vibechecker.aedify.ai/docs.html"><strong>API Docs</strong></a> · 
+    <a href="https://vibechecker.aedify.ai/docs"><strong>OpenAPI</strong></a> · 
+    <a href="https://vibechecker.aedify.ai"><strong>Dashboard</strong></a> · 
     <a href="https://github.com/rajendrathalluru/vibecheck1/tree/main/mcp_server"><strong>MCP Server</strong></a>
   </p>
 </p>
@@ -38,7 +38,7 @@ No authentication required. Just `curl` and go.
 |  | **Semantic Memory Search** | Supermemory-powered RAG to find similar historical vulnerabilities |
 |  | **MCP IDE Integration** | Use VibeCheck tools directly from Cursor or VS Code chat |
 |  | **Security Dashboard** | Charts, filters, export, real-time WebSocket updates |
-|  | **Interactive API Docs** | Full endpoint reference with "Try It" panels at [`/docs.html`](https://vibecheck-test-1beb2409.aedify.ai/docs.html) |
+|  | **Interactive API Docs** | Full endpoint reference with "Try It" panels at [`/docs.html`](https://vibechecker.aedify.ai/docs.html) |
 
 ---
 
@@ -80,13 +80,13 @@ No authentication required. Just `curl` and go.
 ### 1. Check API health
 
 ```bash
-curl https://vibecheck-test-1beb2409.aedify.ai/v1/health
+curl https://vibechecker.aedify.ai/v1/health
 ```
 
 ### 2. Scan a GitHub repo
 
 ```bash
-curl -X POST "https://vibecheck-test-1beb2409.aedify.ai/v1/assessments" \
+curl -X POST "https://vibechecker.aedify.ai/v1/assessments" \
   -H "Content-Type: application/json" \
   -d '{"mode": "lightweight", "repo_url": "https://github.com/user/my-app"}'
 ```
@@ -99,18 +99,18 @@ Poll until `status` is `complete`, then fetch results:
 
 ```bash
 # Check status
-curl "https://vibecheck-test-1beb2409.aedify.ai/v1/assessments/asm_ID"
+curl "https://vibechecker.aedify.ai/v1/assessments/asm_ID"
 
 # Get findings
-curl "https://vibecheck-test-1beb2409.aedify.ai/v1/assessments/asm_ID/findings"
+curl "https://vibechecker.aedify.ai/v1/assessments/asm_ID/findings"
 
 # AI-powered deep analysis of any finding
-curl -X POST "https://vibecheck-test-1beb2409.aedify.ai/v1/assessments/asm_ID/findings/fnd_ID/analyze" \
+curl -X POST "https://vibechecker.aedify.ai/v1/assessments/asm_ID/findings/fnd_ID/analyze" \
   -H "Content-Type: application/json" \
   -d '{"focus": "how to fix this in Express"}'
 ```
 
-> **Full API reference** with interactive "Try It" panels: [**docs.html**](https://vibecheck-test-1beb2409.aedify.ai/docs.html)
+> **Full API reference** with interactive "Try It" panels: [**docs.html**](https://vibechecker.aedify.ai/docs.html)
 
 ---
 
@@ -119,7 +119,7 @@ curl -X POST "https://vibecheck-test-1beb2409.aedify.ai/v1/assessments/asm_ID/fi
 Pass any URL the API can reach as `target_url`:
 
 ```bash
-curl -X POST "https://vibecheck-test-1beb2409.aedify.ai/v1/assessments" \
+curl -X POST "https://vibechecker.aedify.ai/v1/assessments" \
   -H "Content-Type: application/json" \
   -d '{
     "mode": "robust",
@@ -139,7 +139,7 @@ curl -X POST "https://vibecheck-test-1beb2409.aedify.ai/v1/assessments" \
 | **VS Code / Cursor** | Built-in port forwarding | IDE-native workflow |
 | **VibeCheck tunnel** | `vibecheck connect 3000 --server wss://...` | Zero external dependencies |
 
-All methods produce a URL that works as `target_url`. See the [interactive docs](https://vibecheck-test-1beb2409.aedify.ai/docs.html) for full details.
+All methods produce a URL that works as `target_url`. See the [interactive docs](https://vibechecker.aedify.ai/docs.html) for full details.
 
 ---
 

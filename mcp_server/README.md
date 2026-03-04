@@ -28,7 +28,7 @@ python -m pip install mcp httpx
 ```bash
 cd /Users/rajendrathalluru/Documents/vibeccheck/VibeCheck
 source .venv/bin/activate
-VIBECHECK_API_BASE=https://vibecheck1-257d3ab2.aedify.ai \
+VIBECHECK_API_BASE=https://vibechecker.aedify.ai \
 python mcp_server/vibecheck_mcp_server.py
 ```
 
@@ -37,7 +37,7 @@ python mcp_server/vibecheck_mcp_server.py
 ```bash
 cd /Users/rajendrathalluru/Documents/vibeccheck/VibeCheck
 source .venv/bin/activate
-VIBECHECK_API_BASE=https://vibecheck1-257d3ab2.aedify.ai \
+VIBECHECK_API_BASE=https://vibechecker.aedify.ai \
 python mcp_server/vibecheck_mcp_server.py \
   --transport streamable-http \
   --host 127.0.0.1 \
@@ -52,7 +52,7 @@ Use this when clients are on a different machine/network:
 ```bash
 cd /Users/rajendrathalluru/Documents/vibeccheck/VibeCheck
 source .venv/bin/activate
-VIBECHECK_API_BASE=https://vibecheck1-257d3ab2.aedify.ai \
+VIBECHECK_API_BASE=https://vibechecker.aedify.ai \
 python mcp_server/vibecheck_mcp_server.py \
   --transport streamable-http \
   --host 0.0.0.0 \
@@ -79,7 +79,7 @@ Run:
 
 ```bash
 docker run --rm -p 8787:8787 \
-  -e VIBECHECK_API_BASE=https://vibecheck1-257d3ab2.aedify.ai \
+  -e VIBECHECK_API_BASE=https://vibechecker.aedify.ai \
   vibecheck-mcp
 ```
 
@@ -96,7 +96,7 @@ Add to your Cursor MCP config (`mcp.json`):
         "/Users/rajendrathalluru/Documents/vibeccheck/VibeCheck/mcp_server/vibecheck_mcp_server.py"
       ],
       "env": {
-        "VIBECHECK_API_BASE": "https://vibecheck1-257d3ab2.aedify.ai",
+        "VIBECHECK_API_BASE": "https://vibechecker.aedify.ai",
         "VIBECHECK_TIMEOUT_SECONDS": "30"
       }
     }

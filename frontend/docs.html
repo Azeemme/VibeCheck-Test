@@ -26,12 +26,12 @@
     <span class="label">API Documentation</span>
     <div class="base-url-box">
       <label for="apiBaseUrl">Base URL</label>
-      <input id="apiBaseUrl" type="text" value="https://vibecheck-8a86536e.aedify.ai" />
+      <input id="apiBaseUrl" type="text" value="https://vibechecker.aedify.ai" />
     </div>
     <nav>
       <a href="/">Dashboard</a>
-      <a id="swaggerLink" href="https://vibecheck-8a86536e.aedify.ai/docs" target="_blank">Swagger</a>
-      <a id="redocLink" href="https://vibecheck-8a86536e.aedify.ai/redoc" target="_blank">ReDoc</a>
+      <a id="swaggerLink" href="https://vibechecker.aedify.ai/docs" target="_blank">Swagger</a>
+      <a id="redocLink" href="https://vibechecker.aedify.ai/redoc" target="_blank">ReDoc</a>
     </nav>
   </header>
   <div class="sidebar-backdrop"></div>
@@ -124,7 +124,7 @@
         injection, config) that actively probe a live target.</p>
       <h3>Base URL</h3>
       <div class="code-block-wrapper"><button class="copy-btn" onclick="copyCodeBlock(this)">Copy</button>
-        <div class="code-block">https://vibecheck-8a86536e.aedify.ai</div>
+        <div class="code-block">https://vibechecker.aedify.ai</div>
       </div>
       <div class="badge-row">
         <span class="badge-pill">18 Endpoints</span>
@@ -174,7 +174,7 @@
       <h3>Step 1 — Check API Health</h3>
       <p>Verify the API is up and running:</p>
       <div class="code-block-wrapper"><button class="copy-btn" onclick="copyCodeBlock(this)">Copy</button>
-        <div class="code-block">curl https://vibecheck-8a86536e.aedify.ai/v1/health</div>
+        <div class="code-block">curl https://vibechecker.aedify.ai/v1/health</div>
       </div>
       <p>You should see <code>{"status": "healthy", ...}</code>. Try it below in the <a href="#ep-health">Health
           endpoint</a>.</p>
@@ -183,7 +183,7 @@
       <p>Submit the vulnerable repo for lightweight static analysis. This scans the code for SQL injection, hardcoded
         secrets, XSS, insecure configs, and more:</p>
       <div class="code-block-wrapper"><button class="copy-btn" onclick="copyCodeBlock(this)">Copy</button>
-        <div class="code-block">curl -X POST https://vibecheck-8a86536e.aedify.ai/v1/assessments \
+        <div class="code-block">curl -X POST https://vibechecker.aedify.ai/v1/assessments \
           -H "Content-Type: application/json" \
           -d '{"mode": "lightweight", "repo_url": "https://github.com/vulnerable-apps/damn-vulnerable-MCP-server"}'
         </div>
@@ -206,7 +206,7 @@
       <h3>Step 3 — Poll for Completion</h3>
       <p>The scan runs in the background. Poll the assessment status until it reaches <code>complete</code>:</p>
       <div class="code-block-wrapper"><button class="copy-btn" onclick="copyCodeBlock(this)">Copy</button>
-        <div class="code-block">curl https://vibecheck-8a86536e.aedify.ai/v1/assessments/asm_abc123</div>
+        <div class="code-block">curl https://vibechecker.aedify.ai/v1/assessments/asm_abc123</div>
       </div>
       <p>Status progression: <code>queued</code> → <code>cloning</code> → <code>analyzing</code> → <code>complete</code>
         (usually ~30-60 seconds).</p>
@@ -214,7 +214,7 @@
       <h3>Step 4 — View Findings</h3>
       <p>Once complete, fetch the security findings:</p>
       <div class="code-block-wrapper"><button class="copy-btn" onclick="copyCodeBlock(this)">Copy</button>
-        <div class="code-block">curl https://vibecheck-8a86536e.aedify.ai/v1/assessments/asm_abc123/findings</div>
+        <div class="code-block">curl https://vibechecker.aedify.ai/v1/assessments/asm_abc123/findings</div>
       </div>
       <p>You'll see findings like SQL injection, hardcoded secrets, command injection, and more — each with severity,
         description, location, and remediation advice.</p>
@@ -224,7 +224,7 @@
         plan:</p>
       <div class="code-block-wrapper"><button class="copy-btn" onclick="copyCodeBlock(this)">Copy</button>
         <div class="code-block">curl -X POST
-          https://vibecheck-8a86536e.aedify.ai/v1/assessments/asm_abc123/findings/fnd_abc123/analyze \
+          https://vibechecker.aedify.ai/v1/assessments/asm_abc123/findings/fnd_abc123/analyze \
           -H "Content-Type: application/json" \
           -d '{"focus": "How can an attacker exploit this?"}'</div>
       </div>
@@ -423,7 +423,7 @@
             </div>
             <h4>cURL</h4>
             <div class="code-block-wrapper"><button class="copy-btn" onclick="copyCodeBlock(this)">Copy</button>
-              <div class="code-block">curl https://vibecheck-8a86536e.aedify.ai/v1/health</div>
+              <div class="code-block">curl https://vibechecker.aedify.ai/v1/health</div>
             </div>
             <div class="try-it" data-method="GET" data-path="/v1/health">
               <h4>🧪 Try It</h4>
@@ -515,7 +515,7 @@
             </table>
             <h4>Example: Lightweight with repo_url</h4>
             <div class="code-block-wrapper"><button class="copy-btn" onclick="copyCodeBlock(this)">Copy</button>
-              <div class="code-block">curl -X POST https://vibecheck-8a86536e.aedify.ai/v1/assessments \
+              <div class="code-block">curl -X POST https://vibechecker.aedify.ai/v1/assessments \
                 -H "Content-Type: application/json" \
                 -d '{"mode": "lightweight", "repo_url": "https://github.com/user/repo"}'</div>
             </div>
@@ -532,7 +532,7 @@
             </div>
             <h4>Example: Robust with target_url</h4>
             <div class="code-block-wrapper"><button class="copy-btn" onclick="copyCodeBlock(this)">Copy</button>
-              <div class="code-block">curl -X POST https://vibecheck-8a86536e.aedify.ai/v1/assessments \
+              <div class="code-block">curl -X POST https://vibechecker.aedify.ai/v1/assessments \
                 -H "Content-Type: application/json" \
                 -d '{"mode": "robust", "target_url": "https://example.com", "depth": "standard"}'</div>
             </div>
@@ -1121,7 +1121,7 @@
             <h4>Quick Start</h4>
             <div class="code-block-wrapper"><button class="copy-btn" onclick="copyCodeBlock(this)">Copy</button>
               <div class="code-block">pip install vibecheck-client
-                vibecheck connect 3000 --server wss://vibecheck-8a86536e.aedify.ai/v1/tunnel</div>
+                vibecheck connect 3000 --server wss://vibechecker.aedify.ai/v1/tunnel</div>
             </div>
             <h4>Protocol</h4>
             <div class="code-block-wrapper"><button class="copy-btn" onclick="copyCodeBlock(this)">Copy</button>
